@@ -49,6 +49,11 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     //stack without dynamic allocation (new), so we suggest to study the slides
     //and see some examples. Avoid pointers, unless it is necessary!
 
+    /* ------------------------------------------------------------------------ */
+    trapezoidalMap(drawableBoundingBox);
+    /* ------------------------------------------------------------------------ */
+
+
     //UI setup
     ui->setupUi(this);
 
