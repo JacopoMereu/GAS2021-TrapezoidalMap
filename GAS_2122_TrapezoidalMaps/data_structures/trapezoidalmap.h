@@ -2,6 +2,9 @@
 #define TRAPEZOIDALMAP_H
 
 #include "dag.h"
+#include "trapezoid.h"
+#include <set>
+
 class TrapezoidalMap
 {
 public:
@@ -9,7 +12,7 @@ public:
 
 private:
     DAG D;
-
+    std::set<Trapezoid> Map;
 };
 
 #endif // TRAPEZOIDALMAP_H

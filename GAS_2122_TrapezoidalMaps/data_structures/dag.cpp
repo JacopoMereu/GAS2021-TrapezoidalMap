@@ -3,11 +3,10 @@
 /*
  *  Set the DAG with a leaf containing the bounding box
 */
-DAG::DAG(cg3::BoundingBox2& B)
+DAG::DAG(Trapezoid* B)
 {
     assert (root == nullptr);
-    // TODO Convert bb into polygon?
-    root = newNode(nodeType.trapezoid, (Poligon2d*) B);
+    root = newNode(nodeType.trapezoid, B);
 }
 
 DAG::newNode(nodeType type, info info) {
@@ -17,7 +16,7 @@ DAG::newNode(nodeType type, info info) {
         new_node->type = type;
         new_node->lc = nullptr;
         new_node->rc = nullptr;
-
+        new_node->value = info;
 
         return new_node;
 }
