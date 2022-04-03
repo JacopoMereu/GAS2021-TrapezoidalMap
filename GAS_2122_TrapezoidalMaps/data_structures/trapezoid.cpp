@@ -2,27 +2,27 @@
 
 
 
-Trapezoid::Trapezoid(cg3::Segment2& t, cg3::Segment2& b, cg3::Point2& lp, cg3::Point2& rp) : top(t), bottom(b), leftp(lp), rightp(rp)
+Trapezoid::Trapezoid(OrderedSegment& t, OrderedSegment& b, cg3::Point2& lp, cg3::Point2& rp) : top(t), bottom(b), leftp(lp), rightp(rp)
 {
 
 }
 
-cg3::Segment2 &Trapezoid::getTop() const
+OrderedSegment &Trapezoid::getTop() const
 {
     return top;
 }
 
-void Trapezoid::setTop(const cg3::Segment2 &newTop)
+void Trapezoid::setTop(const OrderedSegment &newTop)
 {
     top = newTop;
 }
 
-cg3::Segment2 &Trapezoid::getBottom() const
+OrderedSegment &Trapezoid::getBottom() const
 {
     return bottom;
 }
 
-void Trapezoid::setBottom(const cg3::Segment2 &newBottom)
+void Trapezoid::setBottom(const OrderedSegment &newBottom)
 {
     bottom = newBottom;
 }
@@ -45,4 +45,33 @@ cg3::Point2 &Trapezoid::getRightp() const
 void Trapezoid::setRightp(const cg3::Point2 &newRightp)
 {
     rightp = newRightp;
+}
+
+
+// setter/getter of the trapezoidal neighbors
+void Trapezoid::setUpperLeftNeighbor(Trapezoid& newNeighbor) {
+    neighbors[TOPLEFT] = newNeighbor;
+}
+void Trapezoid::setUpperRightNeighbor(Trapezoid& newNeighbor) {
+    neighbors[TOPRIGHT] = newNeighbor;
+}
+void Trapezoid::setLowerLeftNeighbor(Trapezoid& newNeighbor) {
+    neighbors[BOTTOMLEFT] = newNeighbor;
+}
+void Trapezoid::setLowerRightNeighbor(Trapezoid& newNeighbor) {
+    neighbors[BOTTOMRIGHT] = newNeighbor;
+}
+
+//
+Trapezoid& Trapezoid::getUpperLeftNeighbor() {
+    return neighbors[TOPLEFT];
+}
+Trapezoid& Trapezoid::getUpperRightNeighbor() {
+    return neighbors[TOPRIGHT];
+}
+Trapezoid& Trapezoid::getLowerLeftNeighbor() {
+    return neighbors[BOTTOMLEFT];
+}
+Trapezoid& Trapezoid::getLowerRightNeighbor() {
+    return neighbors[BOTTOMRIGHT];
 }

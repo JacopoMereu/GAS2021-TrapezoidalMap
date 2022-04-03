@@ -6,15 +6,15 @@ TrapezoidalMap::TrapezoidalMap(cg3::BoundingBox2 B)
 {
 
     // Adding the verteces of the BB
-    cg3::Point2 topleft = cg3::Point2(B.min()+B.lengthY());
-    cg3::Point2 topright = cg3::Point2(B.max());
-    cg3::Point2 bottomleft = cg3::Point2(B.min());
-    cg3::Point2 bottomright = cg3::Point2(B.min()+B.lengthX());
+    auto topleft     = cg3::Point2(B.min()+B.lengthY());
+    auto topright    = cg3::Point2(B.max());
+    auto bottomleft  = cg3::Point2(B.min());
+    auto bottomright = cg3::Point2(B.min()+B.lengthX());
 
     // Create a trapezoid from the bounding box
-    cg3::Segment2 top = cg3::Segment(topleft, topright);
-    cg3::Segment2 bottom = cg3::Segment(bottomleft, bottomright);
-    Trapezoid boundingbox_trapezoid = Trapezoid(top, bottom, bottomleft, topright);
+    auto top = OrderedSegment(topleft, topright);
+    auto bottom = OrderedSegment(bottomleft, bottomright);
+    auto boundingbox_trapezoid = Trapezoid(top, bottom, bottomleft, topright);
 
     // Initialize the trapezoidal map structure T and search structure D
     T = std::set<Trapezoid>(boundingbox_trapezoid);
@@ -22,9 +22,10 @@ TrapezoidalMap::TrapezoidalMap(cg3::BoundingBox2 B)
 }
 
 
-void TrapezoidalMap::addSegment(cg3::Segment2& segment) {
+void TrapezoidalMap::addSegment(OrderedSegment& segment) {
     // 1) Find the faces in the trapezoidal map T that intersect the segment
-    std::vector<Trapezoid> facesIntersected = getFacesIntersectingSegment(segment);
+    auto facesIntersected = std::vector<Trapezoid&>();
+    followSegment(segment, facesIntersected);
 
     // 2) Remove the faces found from T and replace them by the new trapezoids:
     // 2a) Split the faces
@@ -50,11 +51,31 @@ void TrapezoidalMap::addSegment(cg3::Segment2& segment) {
 
 
 // ----------------------- PRIVATE SECTION -----------------------
-std::vector<Trapezoid&> TrapezoidalMap::getFacesIntersectingSegment(cg3::Segment s) {
+void TrapezoidalMap::followSegment(OrderedSegment& s, std::vector<Trapezoid&> facesIntersectingSegment) {
+    // 1. Let p and q be the left and right endpoint of s.
+    auto p = s.getLeftmost();
+    auto q = s.getRightmost();
+    // 2. Search with p in the search structure D to find d0.
+    //TODO Trapezoid currentFace = queryInDAG()
 
+    Trapezoid currentFace;
+    facesIntersectingSegment.push_back(currentFace);
+
+    //  while q lies to the right of rightp(dj)
+    while(q > currentFace.getRightp()) {
+        // if rightp(dj) lies above the segment
+        if(getPointPositionRespectToLine(currentFace, s) == left) {
+            currentFace = currentFace.getLowerRightNeighbor();
+        } else {
+            currentFace = currentFace.getLowerLeftNeighbor();
+        }
+
+        //
+        facesIntersectingSegment.push_back(currentFace);
+    }
 }
 
-void TrapezoidalMap::splitFaceIntersectingSegment(Trapezoid& face, cg3::Segment s, std::set<Trapezoid>& newFaces) {
+void TrapezoidalMap::splitFaceIntersectingSegment(Trapezoid& face, OrderedSegment s, std::set<Trapezoid>& newFaces) {
 
 }
 
