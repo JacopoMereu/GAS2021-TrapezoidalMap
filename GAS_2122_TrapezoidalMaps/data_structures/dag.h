@@ -2,9 +2,12 @@
 #define DAG_H
 
 #include "cg3/geometry/point2.h"
-#include "cg3/geometry/segment2.h"
+#include "orderedsegment.h"
+//#include "cg3/geometry/segment2.h"
 //#include "cg3/geometry/polygon2.h"
 #include "trapezoid.h"
+#include "algorithms/OrientationUtility.h"
+
 
 class DAG
 {
@@ -16,13 +19,13 @@ public:
     enum nodeType {point, segment, trapezoid};
 
     void replaceNodeWithSubtree();
-
+    Trapezoid& query(Point2& q);
 private:
     // Content of a node
     union info {
         cg3::Point2* p;
-        cg3::Segment2* s;
-        Trapezoid* t; //TODO Do I need a trapezoid class???
+        OrderedSegment* s;
+        Trapezoid* t;
     };
 
     // Generic node structure
@@ -38,6 +41,7 @@ private:
 
     // Creates a new generic node
     Node* newNode(nodeType type, info info);
+    Trapezoid& queryRec(cg3::Point2& q, Node* root);
 };
 
 #endif // DAG_H
