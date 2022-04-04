@@ -9,25 +9,26 @@
 #include "algorithms/OrientationUtility.h"
 
 
+
 class DAG
 {
 public:
-    DAG(Trapezoid* B);
+    DAG();
+    void initialize(Trapezoid& B); // Necessary because the DAG constructor is implicited called at the beginning of the TrapezoidalMap...
 
     /* The DAG will contain internal nodes (point/x-node or segment/y-node)
     and leaves (trapezoid).*/
     enum nodeType {point, segment, trapezoid};
 
-    void replaceNodeWithSubtree();
-    Trapezoid& query(Point2& q);
 private:
     // Content of a node
     union info {
-        cg3::Point2* p;
+        cg3::Point2d* p;
         OrderedSegment* s;
         Trapezoid* t;
     };
 
+public:
     // Generic node structure
     struct Node {
         nodeType type;
@@ -35,13 +36,16 @@ private:
         struct Node* rc;
         info value;
     };
+    void replaceNodeWithSubtree(Node* nodeToReplace, OrderedSegment segmentSplitting, std::vector<Trapezoid> newFaces);
+    Trapezoid* query(const cg3::Point2d& q);
 
+private:
     // root
     Node* root;
 
     // Creates a new generic node
     Node* newNode(nodeType type, info info);
-    Trapezoid& queryRec(cg3::Point2& q, Node* root);
+    Trapezoid* queryRec(const cg3::Point2d& q, Node* root);
 };
 
 #endif // DAG_H

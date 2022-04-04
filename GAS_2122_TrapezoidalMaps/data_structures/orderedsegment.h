@@ -6,12 +6,17 @@
 
 
 // Class created because we need to know the leftmost/rightmost verteces of a segment but I don't want to check it every time a runtime...
-class OrderedSegment : private cg3::Segment2
+class OrderedSegment : private cg3::Segment2d
 {
 public:
-    OrderedSegment();
-    cg3::Point2& getLeftmost();
-    cg3::Point2& getRightmost();
+    OrderedSegment(cg3::Segment2d unordered_s);
+    OrderedSegment(cg3::Point2d unordered_p1, cg3::Point2d unordered_p2);
+
+    const cg3::Point2d& getLeftmost() const;
+    const cg3::Point2d& getRightmost() const ;
+
+private:
+    void orderSegment();
 };
 
 #endif // ORDEREDSEGMENT_H

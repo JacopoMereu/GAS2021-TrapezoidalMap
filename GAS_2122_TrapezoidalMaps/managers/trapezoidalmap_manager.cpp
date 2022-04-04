@@ -50,7 +50,7 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     //and see some examples. Avoid pointers, unless it is necessary!
 
     /* ------------------------------------------------------------------------ */
-    trapezoidalMap(drawableBoundingBox);
+    trapezoidalMap.initialize(drawableBoundingBox);
     /* ------------------------------------------------------------------------ */
 
 

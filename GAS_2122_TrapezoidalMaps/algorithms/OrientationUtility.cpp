@@ -20,7 +20,7 @@ namespace OrientationUtility {
         return (a*e*i + b*f*g + c*d*h) - (a*f*h + b*d*i + c*e*g);
     }
 
-    Position getPointPositionRespectToLine(cg3::Point2& p, OrderedSegment& s) {
+    Position getPointPositionRespectToLine(const cg3::Point2d& p, const OrderedSegment& s) {
         double m[3][3] = {
             {s.getLeftmost().x(), s.getLeftmost().y(),1.0},
             {s.getRightmost().x(), s.getRightmost().y(),1.0},
@@ -29,9 +29,9 @@ namespace OrientationUtility {
         double determinant = det3(m);
 
         if (determinant < 0)
-            return right;
+            return below;
         else if (determinant > 0)
-            return left;
-        return center;
+            return above;
+        return middle;
     }
 }
