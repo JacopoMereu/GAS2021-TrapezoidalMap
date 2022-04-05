@@ -3,7 +3,8 @@
 
 #include "orderedsegment.h"
 #include <cg3/geometry/point2.h>
-//#include "dag.h"
+#include "dag.h"
+
 
 class Trapezoid
 {
@@ -18,12 +19,12 @@ public:
     // A trapezoid built using general position segments has at most 4 neighbors
     static const size_t N_NEIGHBORS = 4;
 
-    Trapezoid(OrderedSegment& t, OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp);
+    Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp);
 
-    OrderedSegment &getTop() const;
+    const OrderedSegment &getTop() const;
     void setTop(const OrderedSegment &newTop);
 
-    OrderedSegment &getBottom() const;
+    const OrderedSegment &getBottom() const;
     void setBottom(const OrderedSegment &newBottom);
 
     const cg3::Point2d &getLeftp() const;
@@ -37,19 +38,19 @@ public:
     void setUpperRightNeighbor(Trapezoid* newNeighbor);
     void setLowerLeftNeighbor(Trapezoid* newNeighbor);
     void setLowerRightNeighbor(Trapezoid* newNeighbor);
-    Trapezoid* getUpperLeftNeighbor();
-    Trapezoid* getUpperRightNeighbor();
-    Trapezoid* getLowerLeftNeighbor();
-    Trapezoid* getLowerRightNeighbor();
+    Trapezoid* getUpperLeftNeighbor()  const ;
+    Trapezoid* getUpperRightNeighbor() const ;
+    Trapezoid* getLowerLeftNeighbor()  const ;
+    Trapezoid* getLowerRightNeighbor() const ;
 
     // setter/getter the leaf of the dag
-//    void setPointerToDAG(DAG::Node* node);
-//    DAG::Node* getPointerToDAG();
+    void setPointerToDAG(DAG::Node* node);
+    DAG::Node* getPointerToDAG();
 
 
 private:
-    OrderedSegment& top;     // reference to the top segment
-    OrderedSegment& bottom;  // reference to the bottom segment
+    OrderedSegment top;     // reference to the top segment
+    OrderedSegment bottom;  // reference to the bottom segment
     cg3::Point2d leftp;      // reference to the the left point
     cg3::Point2d rightp;     // reference to the top right point
 
@@ -58,7 +59,7 @@ private:
     std::array<Trapezoid*, N_NEIGHBORS> neighbors = {}; // array containing the adjacent trapezoids.
 
     // connection with the dag
-//    DAG::Node* nodeContainer = nullptr;
+    DAG::Node* nodeContainer = nullptr;
 
 };
 

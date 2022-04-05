@@ -1,11 +1,11 @@
 #include "trapezoid.h"
 
-Trapezoid::Trapezoid(OrderedSegment& t, OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp) : top(t), bottom(b)
+Trapezoid::Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp) : top(t), bottom(b)
 {
 
 }
 
-OrderedSegment &Trapezoid::getTop() const
+const OrderedSegment &Trapezoid::getTop() const
 {
     return top;
 }
@@ -15,7 +15,7 @@ void Trapezoid::setTop(const OrderedSegment &newTop)
     top = newTop;
 }
 
-OrderedSegment &Trapezoid::getBottom() const
+const OrderedSegment &Trapezoid::getBottom() const
 {
     return bottom;
 }
@@ -61,27 +61,28 @@ void Trapezoid::setLowerRightNeighbor(Trapezoid* newNeighbor) {
 }
 
 //
-Trapezoid* Trapezoid::getUpperLeftNeighbor() {
+Trapezoid* Trapezoid::getUpperLeftNeighbor() const {
     return neighbors[TOPLEFT];
 }
-Trapezoid* Trapezoid::getUpperRightNeighbor() {
+Trapezoid* Trapezoid::getUpperRightNeighbor() const {
     return neighbors[TOPRIGHT];
 }
-Trapezoid* Trapezoid::getLowerLeftNeighbor() {
+Trapezoid* Trapezoid::getLowerLeftNeighbor() const {
     return neighbors[BOTTOMLEFT];
 }
-Trapezoid* Trapezoid::getLowerRightNeighbor() {
+Trapezoid* Trapezoid::getLowerRightNeighbor() const {
     return neighbors[BOTTOMRIGHT];
 }
 
 //
-/*void Trapezoid::setPointerToDAG(DAG::Node* node) {
+void Trapezoid::setPointerToDAG(DAG::Node* node) {
     nodeContainer = node;
-}*
+}
+
 DAG::Node* Trapezoid::getPointerToDAG() {
     return nodeContainer;
 }
-*/
+
 
 void Trapezoid::swap(Trapezoid& other)
 {

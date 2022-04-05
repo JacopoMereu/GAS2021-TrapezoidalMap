@@ -5,10 +5,10 @@
 #include "orderedsegment.h"
 //#include "cg3/geometry/segment2.h"
 //#include "cg3/geometry/polygon2.h"
-#include "trapezoid.h"
+//#include "trapezoid.h"
 #include "algorithms/OrientationUtility.h"
 
-
+class Trapezoid;
 
 class DAG
 {
@@ -36,6 +36,7 @@ public:
         struct Node* rc;
         info value;
     };
+
     void replaceNodeWithSubtree(Node* nodeToReplace, OrderedSegment segmentSplitting, std::vector<Trapezoid> newFaces);
     Trapezoid* query(const cg3::Point2d& q);
 
@@ -47,5 +48,7 @@ private:
     Node* newNode(nodeType type, info info);
     Trapezoid* queryRec(const cg3::Point2d& q, Node* root);
 };
+
+extern struct DAG::Node dagNode;
 
 #endif // DAG_H

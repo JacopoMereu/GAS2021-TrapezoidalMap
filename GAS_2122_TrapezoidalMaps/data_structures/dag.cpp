@@ -5,7 +5,7 @@
 */
 DAG::DAG()
 {
-    assert (root == nullptr);
+    assert (this->root == nullptr);
 }
 
 void DAG::initialize(Trapezoid& B) {
