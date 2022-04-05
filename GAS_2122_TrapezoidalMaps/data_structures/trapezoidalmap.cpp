@@ -21,9 +21,9 @@ void TrapezoidalMap::initialize(const cg3::BoundingBox2& B)
     Trapezoid boundingbox_trapezoid = Trapezoid(top, bottom, bottomleft, topright);
 
     // Initialize the trapezoidal map structure T and search structure D
-    T = std::vector<Trapezoid>();
-    T.push_back(boundingbox_trapezoid);
-    D.initialize(boundingbox_trapezoid);
+    T = std::vector<Trapezoid*>();
+    T.push_back(&boundingbox_trapezoid);
+    D.initialize(&boundingbox_trapezoid);
 }
 
 
@@ -95,7 +95,7 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
 #else
     /* EASIEST CASE */
     if(intersectingFaces.size() == 1) {
-        auto onlyFace = intersectingFaces[0];
+        Trapezoid* onlyFace = intersectingFaces[0];
 
         // left
         Trapezoid leftNewFace = Trapezoid(onlyFace->getTop(), onlyFace->getBottom(), onlyFace->getLeftp(), s.getLeftmost());
@@ -130,7 +130,23 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
         bottomNewFace.setLowerRightNeighbor(&rightNewFace);
         //      do UR and UL exist?
 
+        // Add the new faces on the trapezoidal map
+         std::vector<Trapezoid*> tmpNewFaces = {&leftNewFace, &topNewFace, &rightNewFace, &bottomNewFace};
+        assert(tmpNewFaces.size() == 4);
+        /*T.push_back(&leftNewFace);
+        T.push_back(&topNewFace);
+        T.push_back(&rightNewFace);
+        T.push_back(&bottomNewFace);*/
+        T.insert(T.end(), tmpNewFaces.begin(), tmpNewFaces.end());
 
+        // Upgrade the DAG
+        D.replaceNodeWithSubtree(onlyFace->getPointerToDAG(), s, tmpNewFaces);
+
+        // Remove the old one from T
+        auto d = T.size();
+        T.erase(intersectingFaces.begin());
+        assert(intersectingFaces.empty() == true);
+        assert(T.size() == (d-1));
     }
     /* HARDEST CASE */
     else {

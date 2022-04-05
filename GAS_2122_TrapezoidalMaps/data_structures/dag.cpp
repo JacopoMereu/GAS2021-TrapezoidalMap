@@ -8,14 +8,19 @@ DAG::DAG()
     assert (this->root == nullptr);
 }
 
-void DAG::initialize(Trapezoid& B) {
+void DAG::initialize(Trapezoid* B) {
     assert (root == nullptr);
-    info infoB; infoB.t = &B;
-    root = newNode(trapezoid, infoB);
+//    info infoB; infoB.t = &B;
+//    root = newNode(trapezoid, infoB);
+    root = DAGNode::generateLeafNode(B);
 }
 
 
-void DAG::replaceNodeWithSubtree(Node* nodeToReplace, OrderedSegment segmentSplitting, std::vector<Trapezoid> newFaces) {
+void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segmentSplitting, std::vector<Trapezoid*> newFaces) {
+    // Double check if the node is a leaf
+    assert(nodeToReplace->lc == nullptr);
+    assert(nodeToReplace->rc == nullptr);
+
 
 }
 
@@ -25,42 +30,27 @@ Trapezoid* DAG::query(const cg3::Point2d& q) {
 }
 
 // PRIVATE SECTION
-DAG::Node* DAG::newNode(nodeType type, info info) {
-    Node* new_node = (Node*)malloc(sizeof(Node));
-    assert(new_node != nullptr);
-
-    new_node->type = type;
-    new_node->lc = nullptr;
-    new_node->rc = nullptr;
-    new_node->value = info;
-
-    if(type == trapezoid) {
-        /*assert(info.t->getPointerToDAG() == nullptr); // should be null
-            info.t->setPointerToDAG(new_node);*/
-        ;
-    }
-    return new_node;
-}
 
 
-Trapezoid* DAG::queryRec(const cg3::Point2d& q, Node* node) {
-    switch (node->type) {
+Trapezoid* DAG::queryRec(const cg3::Point2d& q, DAGNode* node) {
+    switch (node->getNodeType()) {
     // x-node
-    case point: {
+    case DAGNode::point: {
         // q.x < node.x => go left
-        if(q.x() < node->value.p->x()) {
+        auto p_x = node->getPointStored()->x();
+        if(q.x() < p_x) {
             return queryRec(q, node->lc);
         }
         // q.x > node.x => go right
-        else if (q.x() > node->value.p->x()) {
+        else if (q.x() > p_x) {
             return queryRec(q, node->rc);
         }
         //TODO Should I handle q.x == node.x =?
         break;
     }
         // y-node
-    case segment: {
-        Position pos = OrientationUtility::getPointPositionRespectToLine(q, *(node->value.s));
+    case DAGNode::segment: {
+        Position pos = OrientationUtility::getPointPositionRespectToLine(q, *(node->getOrientedSegmentStored()));
         switch (pos) {
 
         // q above segment => go left
@@ -85,9 +75,9 @@ Trapezoid* DAG::queryRec(const cg3::Point2d& q, Node* node) {
     }
 
         // leaf
-    case trapezoid: {
+    case DAGNode::trapezoid: {
         // if we reach a leaf, the point is contained in the trapezoid associated to the node
-        return node->value.t;
+        return node->getTrapezoidStored();
         break;
     }
         // shpuld be impossible

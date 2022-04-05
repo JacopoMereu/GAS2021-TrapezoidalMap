@@ -3,9 +3,10 @@
 
 #include "orderedsegment.h"
 #include <cg3/geometry/point2.h>
-#include "dag.h"
+//#include "dag.h"
+//#include "dagnode.h"
 
-
+class DAGNode;
 class Trapezoid
 {
 public:
@@ -44,11 +45,12 @@ public:
     Trapezoid* getLowerRightNeighbor() const ;
 
     // setter/getter the leaf of the dag
-    void setPointerToDAG(DAG::Node* node);
-    DAG::Node* getPointerToDAG();
+    void setPointerToDAG(DAGNode* node);
+    DAGNode* getPointerToDAG();
 
 
 private:
+    // TODO impossible to use references. Should I use pointers? :thinking:
     OrderedSegment top;     // reference to the top segment
     OrderedSegment bottom;  // reference to the bottom segment
     cg3::Point2d leftp;      // reference to the the left point
@@ -59,8 +61,10 @@ private:
     std::array<Trapezoid*, N_NEIGHBORS> neighbors = {}; // array containing the adjacent trapezoids.
 
     // connection with the dag
-    DAG::Node* nodeContainer = nullptr;
+    DAGNode* nodeContainer = nullptr;
 
 };
+
+//extern struct DAG::Node dagNode;
 
 #endif // TRAPEZOID_H

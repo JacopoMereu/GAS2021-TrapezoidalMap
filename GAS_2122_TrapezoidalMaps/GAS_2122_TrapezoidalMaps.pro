@@ -42,6 +42,7 @@ DISTFILES += \
 SOURCES +=  \
     algorithms/OrientationUtility.cpp \
     data_structures/dag.cpp \
+    data_structures/dagnode.cpp \
     data_structures/drawabletrapezoidalmap.cpp \
     data_structures/orderedsegment.cpp \
     data_structures/segment_intersection_checker.cpp \
@@ -59,6 +60,7 @@ FORMS += \
 HEADERS += \
     algorithms/OrientationUtility.h \
     data_structures/dag.h \
+    data_structures/dagnode.h \
     data_structures/drawabletrapezoidalmap.h \
     data_structures/orderedsegment.h \
     data_structures/segment_intersection_checker.h \

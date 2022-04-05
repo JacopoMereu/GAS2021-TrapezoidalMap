@@ -16,7 +16,7 @@ public:
 
 private:
     DAG D;
-    std::vector<Trapezoid> T;   // Contains the trapezoids
+    std::vector<Trapezoid*> T;   // Contains the trapezoids
     std::vector<cg3::Point2d> points;  // Contains the points
     std::vector<OrderedSegment> segments;    // Contains the segments
 

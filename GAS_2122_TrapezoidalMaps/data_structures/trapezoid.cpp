@@ -1,6 +1,6 @@
 #include "trapezoid.h"
 
-Trapezoid::Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp) : top(t), bottom(b)
+Trapezoid::Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp) : top(t), bottom(b), leftp(lp), rightp(rp)
 {
 
 }
@@ -75,11 +75,11 @@ Trapezoid* Trapezoid::getLowerRightNeighbor() const {
 }
 
 //
-void Trapezoid::setPointerToDAG(DAG::Node* node) {
+void Trapezoid::setPointerToDAG(DAGNode* node) {
     nodeContainer = node;
 }
 
-DAG::Node* Trapezoid::getPointerToDAG() {
+DAGNode* Trapezoid::getPointerToDAG() {
     return nodeContainer;
 }
 
