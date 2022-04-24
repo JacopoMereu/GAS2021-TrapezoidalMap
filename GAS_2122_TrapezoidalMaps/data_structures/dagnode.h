@@ -16,7 +16,7 @@ public:
 
     // Content of a node
     union info {
-        cg3::Point2d* p;
+        const cg3::Point2d* p;
         OrderedSegment* s;
         Trapezoid* t;
     };
@@ -25,7 +25,7 @@ public:
     void setNodeAsYNode(OrderedSegment& t);
     void setNodeAsLeafNode(Trapezoid& t);*/
 
-    static DAGNode* generateXNode(cg3::Point2d* p);
+    static DAGNode* generateXNode(const cg3::Point2d* p);
     static DAGNode* generateYNode(OrderedSegment* s);
     static DAGNode* generateLeafNode(Trapezoid* t);
     // Creates a new generic node
@@ -38,7 +38,11 @@ public:
     const cg3::Point2d* getPointStored();
     const OrderedSegment* getOrientedSegmentStored() const;
     Trapezoid* getTrapezoidStored() const;
+    void convertToXNode(const cg3::Point2d* p);
+    void convertToYNode(OrderedSegment* s);
+    void convertToLeafNode(Trapezoid* t);
 
+    //TODO    DAGNode* father; Maybe I don't need this
     DAGNode* lc;
     DAGNode* rc;
 

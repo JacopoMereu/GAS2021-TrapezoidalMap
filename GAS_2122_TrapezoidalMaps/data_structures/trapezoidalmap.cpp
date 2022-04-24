@@ -72,44 +72,23 @@ void TrapezoidalMap::followSegment(OrderedSegment& s, std::vector<Trapezoid*> fa
 
 void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersectingFaces) {
 // it's better to pass the whole list to the function instead of a single trapezoid (because there are several scenarios to handle...)
-#if 0
-    // 2) Remove the faces found from T and replace them by the new trapezoids:
-    // 2a) Split the faces
-    auto newFaces = std::vector<Trapezoid>();
-    for (auto face : facesIntersected) {
-        // split the i-th face in 2, 3 or 4 faces
-        splitFaceIntersectingSegment(face, segment, newFaces_tmp);
-        //add the new faces to the set of current face
-        newFaces.insert(newFaces.end(), newFaces_tmp.begin(), newFaces_tmp.end());
-
-        // replace the node (in the DAG) containing the i-th face with the splitted ones.
-        D.replaceNodeWithSubtree(face.getPointerToDAG(), segment, newFaces);
-    }
-    // 2b) Remove the old faces
-    T.erase(facesIntersected.begin(), facesIntersected.end());
-    // 2c) Add the new ones
-    T.insert(newFaces.begin(), newFaces.end());
-
-    // 3) Remove the faces from D, and create leaves for the new trapezoids.
-    //  Link the new leaves to the existing inner nodes by adding some new inner nodes.
-#else
     /* EASIEST CASE */
     if(intersectingFaces.size() == 1) {
-        Trapezoid* onlyFace = intersectingFaces[0];
+        Trapezoid* oldFace = intersectingFaces[0];
 
         // left
-        Trapezoid leftNewFace = Trapezoid(onlyFace->getTop(), onlyFace->getBottom(), onlyFace->getLeftp(), s.getLeftmost());
+        Trapezoid leftNewFace = Trapezoid(oldFace->getTop(), oldFace->getBottom(), oldFace->getLeftp(), s.getLeftmost());
         // top
-        Trapezoid topNewFace = Trapezoid(onlyFace->getTop(), s, s.getLeftmost(), s.getRightmost());
+        Trapezoid topNewFace = Trapezoid(oldFace->getTop(), s, s.getLeftmost(), s.getRightmost());
         // right
-        Trapezoid rightNewFace = Trapezoid(onlyFace->getTop(), onlyFace->getBottom(), s.getRightmost(), onlyFace->getRightp());
+        Trapezoid rightNewFace = Trapezoid(oldFace->getTop(), oldFace->getBottom(), s.getRightmost(), oldFace->getRightp());
         // bottom
-        Trapezoid bottomNewFace = Trapezoid(s, onlyFace->getBottom(), s.getLeftmost(), s.getRightmost());
+        Trapezoid bottomNewFace = Trapezoid(s, oldFace->getBottom(), s.getLeftmost(), s.getRightmost());
 
         // setting adjacencies for:
         // left
-        leftNewFace.setUpperLeftNeighbor(onlyFace->getUpperLeftNeighbor());
-        leftNewFace.setLowerLeftNeighbor(onlyFace->getLowerLeftNeighbor());
+        leftNewFace.setUpperLeftNeighbor(oldFace->getUpperLeftNeighbor());
+        leftNewFace.setLowerLeftNeighbor(oldFace->getLowerLeftNeighbor());
         leftNewFace.setUpperRightNeighbor(&topNewFace);
         leftNewFace.setLowerRightNeighbor(&bottomNewFace);
 
@@ -122,8 +101,8 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
         // right
         rightNewFace.setUpperLeftNeighbor(&topNewFace);
         rightNewFace.setLowerLeftNeighbor(&bottomNewFace);
-        rightNewFace.setUpperRightNeighbor(onlyFace->getUpperRightNeighbor());
-        rightNewFace.setLowerRightNeighbor(onlyFace->getLowerRightNeighbor());
+        rightNewFace.setUpperRightNeighbor(oldFace->getUpperRightNeighbor());
+        rightNewFace.setLowerRightNeighbor(oldFace->getLowerRightNeighbor());
 
         // bottom
         bottomNewFace.setLowerLeftNeighbor(&leftNewFace);
@@ -131,14 +110,14 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
         //TODO      do UR and UL exist?
 
         // Update the faces (if not null) that had the old face as neighbor
-        if(onlyFace->getUpperLeftNeighbor())
-            onlyFace->getUpperLeftNeighbor()->replaceNeighbor(onlyFace, &leftNewFace);
-        if(onlyFace->getLowerLeftNeighbor())
-            onlyFace->getLowerLeftNeighbor()->replaceNeighbor(onlyFace, &leftNewFace);
-        if(onlyFace->getUpperRightNeighbor())
-            onlyFace->getUpperRightNeighbor()->replaceNeighbor(onlyFace, &rightNewFace);
-        if(onlyFace->getLowerRightNeighbor())
-            onlyFace->getLowerRightNeighbor()->replaceNeighbor(onlyFace, &rightNewFace);
+        if(oldFace->getUpperLeftNeighbor())
+            oldFace->getUpperLeftNeighbor()->replaceNeighbor(oldFace, &leftNewFace);
+        if(oldFace->getLowerLeftNeighbor())
+            oldFace->getLowerLeftNeighbor()->replaceNeighbor(oldFace, &leftNewFace);
+        if(oldFace->getUpperRightNeighbor())
+            oldFace->getUpperRightNeighbor()->replaceNeighbor(oldFace, &rightNewFace);
+        if(oldFace->getLowerRightNeighbor())
+            oldFace->getLowerRightNeighbor()->replaceNeighbor(oldFace, &rightNewFace);
 
         // Add the new faces on the trapezoidal map
          std::vector<Trapezoid*> tmpNewFaces = {&leftNewFace, &topNewFace, &rightNewFace, &bottomNewFace};
@@ -150,7 +129,7 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
         T.insert(T.end(), tmpNewFaces.begin(), tmpNewFaces.end());
 
         // Upgrade the DAG
-        D.replaceNodeWithSubtree(onlyFace->getPointerToDAG(), s, tmpNewFaces);
+        D.replaceNodeWithSubtree(oldFace->getPointerToDAG(), s, tmpNewFaces);
 
         // Remove the old one from T
         auto d = T.size();
@@ -160,9 +139,17 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
     }
     /* HARDEST CASE */
     else {
+        for(auto i = 0; i<intersectingFaces.size(); i++){
+            auto currentFace = intersectingFaces.at(i);
+            // first face
+            if(i==0){}
+            // last face
+            else if(i==intersectingFaces.size()-1) {}
+            // faces 1...n-1
+            else {}
 
+        }
     }
-#endif
     /**/
 }
 

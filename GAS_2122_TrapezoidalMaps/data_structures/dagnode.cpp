@@ -26,7 +26,7 @@ DAGNode* DAGNode::newNode(nodeType type, info info) {
 
 // PUBLIC
 
-DAGNode* DAGNode::generateXNode(cg3::Point2d* p) {
+DAGNode* DAGNode::generateXNode(const cg3::Point2d* p) {
     DAGNode::info info;
     info.p = p;
     return DAGNode::newNode(point, info);
@@ -59,16 +59,30 @@ bool DAGNode::isYNode() const {
 }
 
 const cg3::Point2d* DAGNode::getPointStored() {
-    if(getNodeType() != DAGNode::point) return nullptr;
+    if(!isXNode()) return nullptr;
     return this->value.p;
 }
 
 const OrderedSegment* DAGNode::getOrientedSegmentStored() const {
-    if(getNodeType() != DAGNode::segment) return nullptr;
+    if(!isYNode()) return nullptr;
     return this->value.s;
 }
 
 Trapezoid* DAGNode::getTrapezoidStored() const {
-    if(getNodeType() != DAGNode::trapezoid) return nullptr;
+    if(!isLeaf()) return nullptr;
     return this->value.t;
+}
+
+void DAGNode::convertToXNode(const cg3::Point2d* p) {
+    this->type = point;
+    this->value.p = p;
+
+}
+void DAGNode::convertToYNode(OrderedSegment* s) {
+    this->type = segment;
+    this->value.s = s;
+}
+void DAGNode::convertToLeafNode(Trapezoid* t) {
+    this->type = trapezoid;
+    this->value.t = t;
 }

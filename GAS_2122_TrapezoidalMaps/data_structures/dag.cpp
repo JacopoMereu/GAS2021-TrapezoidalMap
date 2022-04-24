@@ -17,6 +17,8 @@ void DAG::initialize(Trapezoid* B) {
 
 
 void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segmentSplitting, std::vector<Trapezoid*> newFaces) {
+    //TODO This is the simplest case
+
     // Double check if the node is a leaf
     assert(nodeToReplace->lc == nullptr);
     assert(nodeToReplace->rc == nullptr);
@@ -24,22 +26,24 @@ void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segment
 
     //TODO a better way to pass the new faces
     // create the node containing the leftmost endpoint of the segment. this node is the new root of the subtree
-    auto newRoot = DAGNode.generateXNode(segmentSplitting.getLeftmost());
+    auto newRoot = DAGNode::generateXNode(&segmentSplitting.getLeftmost());
     // create the node containing the left face and attach it to the root
-    newRoot->lc = DAGNode.generateLeafNode(newFaces.at(0));
+    newRoot->lc = DAGNode::generateLeafNode(newFaces.at(0));
     // create the node containing the right endpoint and attach it to the root
-    auto tmp = DAGNode.generateXNode(segmentSplitting.getRightmost());
+    auto tmp = DAGNode::generateXNode(&segmentSplitting.getRightmost());
     newRoot->rc = tmp;
     // create the node containing the right face and attach it to the rightendpoint node
-    tmp->rc = DAGNode.generateLeafNode(newFaces.at(2));
+    tmp->rc = DAGNode::generateLeafNode(newFaces.at(2));
     // create the node containing the segment and attach it to the rightendpoint node
-    tmp->lc = DAGNode.generateYNode(segmentSplitting);
+    tmp->lc = DAGNode::generateYNode(&segmentSplitting);
     tmp = tmp->lc;
     // create the node containing the top face and attach it to the segment node
-    tmp->lc = DAGNode.generateLeafNode(newFaces.at(1));
-    tmp->rc = DAGNode.generateLeafNode(newFaces.at(3));
+    tmp->lc = DAGNode::generateLeafNode(newFaces.at(1));
+    tmp->rc = DAGNode::generateLeafNode(newFaces.at(3));
 
-    // replace
+    // replace the old node with the new root
+    nodeToReplace->convertToXNode(newRoot->getPointStored());
+
 }
 
 
