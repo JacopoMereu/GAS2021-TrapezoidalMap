@@ -128,7 +128,17 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
         // bottom
         bottomNewFace.setLowerLeftNeighbor(&leftNewFace);
         bottomNewFace.setLowerRightNeighbor(&rightNewFace);
-        //      do UR and UL exist?
+        //TODO      do UR and UL exist?
+
+        // Update the faces (if not null) that had the old face as neighbor
+        if(onlyFace->getUpperLeftNeighbor())
+            onlyFace->getUpperLeftNeighbor()->replaceNeighbor(onlyFace, &leftNewFace);
+        if(onlyFace->getLowerLeftNeighbor())
+            onlyFace->getLowerLeftNeighbor()->replaceNeighbor(onlyFace, &leftNewFace);
+        if(onlyFace->getUpperRightNeighbor())
+            onlyFace->getUpperRightNeighbor()->replaceNeighbor(onlyFace, &rightNewFace);
+        if(onlyFace->getLowerRightNeighbor())
+            onlyFace->getLowerRightNeighbor()->replaceNeighbor(onlyFace, &rightNewFace);
 
         // Add the new faces on the trapezoidal map
          std::vector<Trapezoid*> tmpNewFaces = {&leftNewFace, &topNewFace, &rightNewFace, &bottomNewFace};

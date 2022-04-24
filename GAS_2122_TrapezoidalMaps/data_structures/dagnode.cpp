@@ -48,6 +48,16 @@ DAGNode::nodeType DAGNode::getNodeType() const {
     return this->type;
 }
 
+bool DAGNode::isLeaf() const {
+    return getNodeType() == trapezoid;
+}
+bool DAGNode::isXNode() const {
+    return getNodeType() == point;
+}
+bool DAGNode::isYNode() const {
+    return getNodeType() == segment;
+}
+
 const cg3::Point2d* DAGNode::getPointStored() {
     if(getNodeType() != DAGNode::point) return nullptr;
     return this->value.p;

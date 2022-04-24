@@ -43,6 +43,8 @@ public:
     Trapezoid* getUpperRightNeighbor() const ;
     Trapezoid* getLowerLeftNeighbor()  const ;
     Trapezoid* getLowerRightNeighbor() const ;
+    // find and replace the old neighbour with the new one
+    bool replaceNeighbor(Trapezoid* oldNeighbor, Trapezoid* newNeighbor);
 
     // setter/getter the leaf of the dag
     void setPointerToDAG(DAGNode* node);
@@ -57,7 +59,7 @@ private:
     cg3::Point2d rightp;     // reference to the top right point
 
     enum neighborsCode {TOPLEFT, TOPRIGHT, BOTTOMLEFT, BOTTOMRIGHT};
-
+    // source: https://riptutorial.com/cplusplus/example/13085/iteration-over-an-enum
     std::array<Trapezoid*, N_NEIGHBORS> neighbors = {}; // array containing the adjacent trapezoids.
 
     // connection with the dag

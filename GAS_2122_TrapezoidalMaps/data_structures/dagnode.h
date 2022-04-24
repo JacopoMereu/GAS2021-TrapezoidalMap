@@ -32,7 +32,9 @@ public:
     static DAGNode* newNode(nodeType type, info info);
 
     nodeType getNodeType() const;
-
+    bool isLeaf() const;
+    bool isXNode() const;
+    bool isYNode() const;
     const cg3::Point2d* getPointStored();
     const OrderedSegment* getOrientedSegmentStored() const;
     Trapezoid* getTrapezoidStored() const;

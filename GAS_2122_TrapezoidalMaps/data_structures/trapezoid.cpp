@@ -73,6 +73,20 @@ Trapezoid* Trapezoid::getLowerLeftNeighbor() const {
 Trapezoid* Trapezoid::getLowerRightNeighbor() const {
     return neighbors[BOTTOMRIGHT];
 }
+bool Trapezoid::replaceNeighbor(Trapezoid* oldNeighbor, Trapezoid* newNeighbor) {
+    bool hasReplaced = false;
+    //TODO da ottimizare il senso di ricerca
+    for (neighborsCode i = TOPLEFT; i < BOTTOMRIGHT; i = neighborsCode(i + 1))
+    {
+        if(neighbors[i] == oldNeighbor) {
+            neighbors[i] = newNeighbor;
+            hasReplaced = true;
+            break;
+        }
+    }
+    return hasReplaced;
+}
+
 
 //
 void Trapezoid::setPointerToDAG(DAGNode* node) {
