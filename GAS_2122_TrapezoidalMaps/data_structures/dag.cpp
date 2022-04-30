@@ -16,34 +16,48 @@ void DAG::initialize(Trapezoid* B) {
 }
 
 
-void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segmentSplitting, std::vector<Trapezoid*> newFaces) {
-    //TODO This is the simplest case
-
+void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segmentSplitting, Trapezoid* left, Trapezoid* top, Trapezoid* bottom, Trapezoid* right) {
     // Double check if the node is a leaf
     assert(nodeToReplace->lc == nullptr);
     assert(nodeToReplace->rc == nullptr);
     assert(nodeToReplace->isLeaf());
 
     //TODO a better way to pass the new faces
-    // create the node containing the leftmost endpoint of the segment. this node is the new root of the subtree
-    auto newRoot = DAGNode::generateXNode(&segmentSplitting.getLeftmost());
-    // create the node containing the left face and attach it to the root
-    newRoot->lc = DAGNode::generateLeafNode(newFaces.at(0));
-    // create the node containing the right endpoint and attach it to the root
-    auto tmp = DAGNode::generateXNode(&segmentSplitting.getRightmost());
-    newRoot->rc = tmp;
-    // create the node containing the right face and attach it to the rightendpoint node
-    tmp->rc = DAGNode::generateLeafNode(newFaces.at(2));
-    // create the node containing the segment and attach it to the rightendpoint node
-    tmp->lc = DAGNode::generateYNode(&segmentSplitting);
-    tmp = tmp->lc;
-    // create the node containing the top face and attach it to the segment node
-    tmp->lc = DAGNode::generateLeafNode(newFaces.at(1));
-    tmp->rc = DAGNode::generateLeafNode(newFaces.at(3));
-
-    // replace the old node with the new root
-    nodeToReplace->convertToXNode(newRoot->getPointStored());
-
+    // Creating the segment subtree (it's always created in every case)
+    auto segmentNode = DAGNode::generateYNode(&segmentSplitting);
+    segmentNode->lc = DAGNode::generateLeafNode(top);
+    segmentNode->rc = DAGNode::generateLeafNode(bottom);
+    DAGNode* newRoot;
+    /* COMPLEX CASE: the whole segment is inside a face */
+    if(left != nullptr && right != nullptr) {
+        newRoot = DAGNode::generateXNode(&segmentSplitting.getLeftmost());
+        newRoot->lc = DAGNode::generateLeafNode(left);
+        newRoot->rc = DAGNode::generateXNode(&segmentSplitting.getRightmost());
+        newRoot->rc->lc = segmentNode;
+        newRoot->rc->rc = DAGNode::generateLeafNode(right);
+        // replace the old node with the new node
+        nodeToReplace->convertToXNode(newRoot->getPointStored());
+    }
+    /* COMPLEX CASE: several faces intersected by the segment */
+    // If it's the first face
+    else if (left != nullptr) {
+        newRoot = DAGNode::generateXNode(&segmentSplitting.getLeftmost());
+        newRoot->lc = DAGNode::generateLeafNode(left);
+        newRoot->rc = segmentNode;
+        nodeToReplace->convertToXNode(newRoot->getPointStored());
+    }
+    // If it's the last (k-th) face
+    else if (right != nullptr) {
+        newRoot = DAGNode::generateXNode(&segmentSplitting.getRightmost());
+        newRoot->lc = segmentNode;
+        newRoot->rc = DAGNode::generateLeafNode(right);
+        nodeToReplace->convertToXNode(newRoot->getPointStored());
+    }
+    // Else it's a i-th face with i in [2, k-1]
+    else {
+        newRoot = segmentNode;
+        nodeToReplace->convertToYNode(newRoot->getOrientedSegmentStored());
+    }
 }
 
 

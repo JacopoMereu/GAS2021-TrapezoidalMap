@@ -39,6 +39,11 @@ DAGNode* DAGNode::generateYNode(OrderedSegment* s) {
 }
 
 DAGNode* DAGNode::generateLeafNode(Trapezoid* t) {
+    // If it exists already a node containing the trapezoid, return that node
+    if (t->getPointerToDAG() != nullptr)
+        return t->getPointerToDAG();
+
+    // otherwise create a new node
     DAGNode::info info;
     info.t = t;
     return DAGNode::newNode(trapezoid, info);
@@ -78,7 +83,7 @@ void DAGNode::convertToXNode(const cg3::Point2d* p) {
     this->value.p = p;
 
 }
-void DAGNode::convertToYNode(OrderedSegment* s) {
+void DAGNode::convertToYNode(const OrderedSegment* s) {
     this->type = segment;
     this->value.s = s;
 }

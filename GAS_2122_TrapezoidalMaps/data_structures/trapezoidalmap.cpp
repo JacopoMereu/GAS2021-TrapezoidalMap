@@ -124,16 +124,19 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
 //            oldFace->getLowerRightNeighbor()->replaceNeighbor(oldFace, &rightNewFace);
 
         // Add the new faces on the trapezoidal map
-         std::vector<Trapezoid*> tmpNewFaces = {&leftNewFace, &topNewFace, &rightNewFace, &bottomNewFace};
-        assert(tmpNewFaces.size() == 4);
+//        std::vector<Trapezoid*> tmpNewFaces = {};
+//        assert(tmpNewFaces.size() == 4);
         /*T.push_back(&leftNewFace);
         T.push_back(&topNewFace);
         T.push_back(&rightNewFace);
         T.push_back(&bottomNewFace);*/
-        T.insert(T.end(), tmpNewFaces.begin(), tmpNewFaces.end());
+        T.push_back(&leftNewFace);
+        T.push_back(&leftNewFace);
+        T.push_back(&leftNewFace);
+        T.push_back(&leftNewFace);
 
         // Upgrade the DAG
-        D.replaceNodeWithSubtree(oldFace->getPointerToDAG(), s, tmpNewFaces);
+        D.replaceNodeWithSubtree(oldFace->getPointerToDAG(), s, &leftNewFace, &topNewFace, &bottomNewFace, &rightNewFace);
 
         // Remove the old one from T
         auto d = T.size();
@@ -241,7 +244,7 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
         }
 
         // Merging the eventually adjacent faces with same bottom and top
-        finalNewFaces.push_back(aboveSegmentNewFaces.begin());
+        finalNewFaces.push_back(aboveSegmentNewFaces.front());
 
         /* ABOVE */
         for(auto i = 1; i < N_FACES+1; i++) {

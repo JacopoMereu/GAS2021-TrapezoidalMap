@@ -17,7 +17,7 @@ public:
     // Content of a node
     union info {
         const cg3::Point2d* p;
-        OrderedSegment* s;
+        const OrderedSegment* s;
         Trapezoid* t;
     };
 
@@ -39,7 +39,7 @@ public:
     const OrderedSegment* getOrientedSegmentStored() const;
     Trapezoid* getTrapezoidStored() const;
     void convertToXNode(const cg3::Point2d* p);
-    void convertToYNode(OrderedSegment* s);
+    void convertToYNode(const OrderedSegment* s);
     void convertToLeafNode(Trapezoid* t);
 
     //TODO    DAGNode* father; Maybe I don't need this
