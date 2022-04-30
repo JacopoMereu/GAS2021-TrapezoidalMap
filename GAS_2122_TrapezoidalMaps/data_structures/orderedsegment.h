@@ -6,7 +6,7 @@
 
 
 // Class created because we need to know the leftmost/rightmost verteces of a segment but I don't want to check it every time a runtime...
-class OrderedSegment : private cg3::Segment2d
+class OrderedSegment : public cg3::Segment2d
 {
 public:
     OrderedSegment(cg3::Segment2d unordered_s);

@@ -19,6 +19,7 @@ public:
 
     // A trapezoid built using general position segments has at most 4 neighbors
     static const size_t N_NEIGHBORS = 4;
+    enum neighborsCode {TOPLEFT, TOPRIGHT, BOTTOMLEFT, BOTTOMRIGHT};
 
     Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp);
 
@@ -39,6 +40,7 @@ public:
     void setUpperRightNeighbor(Trapezoid* newNeighbor);
     void setLowerLeftNeighbor(Trapezoid* newNeighbor);
     void setLowerRightNeighbor(Trapezoid* newNeighbor);
+    void replaceNeighborsFromTrapezoid(Trapezoid* trapezoidToReplace, std::vector<neighborsCode> neighborsToReplace);
     Trapezoid* getUpperLeftNeighbor()  const ;
     Trapezoid* getUpperRightNeighbor() const ;
     Trapezoid* getLowerLeftNeighbor()  const ;
@@ -58,7 +60,7 @@ private:
     cg3::Point2d leftp;      // reference to the the left point
     cg3::Point2d rightp;     // reference to the top right point
 
-    enum neighborsCode {TOPLEFT, TOPRIGHT, BOTTOMLEFT, BOTTOMRIGHT};
+
     // source: https://riptutorial.com/cplusplus/example/13085/iteration-over-an-enum
     std::array<Trapezoid*, N_NEIGHBORS> neighbors = {}; // array containing the adjacent trapezoids.
 

@@ -48,7 +48,7 @@ void Trapezoid::setRightp(const cg3::Point2d &newRightp)
 
 // setter/getter of the trapezoidal neighbors
 void Trapezoid::setUpperLeftNeighbor(Trapezoid* newNeighbor) {
-    neighbors[TOPLEFT] = newNeighbor;
+    neighbors[TOPLEFT] = newNeighbor;      
 }
 void Trapezoid::setUpperRightNeighbor(Trapezoid* newNeighbor) {
     neighbors[TOPRIGHT] = newNeighbor;
@@ -59,7 +59,15 @@ void Trapezoid::setLowerLeftNeighbor(Trapezoid* newNeighbor) {
 void Trapezoid::setLowerRightNeighbor(Trapezoid* newNeighbor) {
     neighbors[BOTTOMRIGHT] = newNeighbor;
 }
-
+//
+void Trapezoid::replaceNeighborsFromTrapezoid(Trapezoid* trapezoidToReplace, std::vector<neighborsCode> neighborsToReplace) {
+    for(auto code : neighborsToReplace) {
+        this->neighbors[code] = trapezoidToReplace->neighbors[code];
+        if(trapezoidToReplace->neighbors[code] != nullptr) {
+            trapezoidToReplace->neighbors[code]->replaceNeighbor(trapezoidToReplace, this);
+        }
+    }
+}
 //
 Trapezoid* Trapezoid::getUpperLeftNeighbor() const {
     return neighbors[TOPLEFT];
