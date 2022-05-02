@@ -52,14 +52,27 @@ public:
     void setPointerToDAG(DAGNode* node);
     DAGNode* getPointerToDAG();
 
+    // draw methods
+    void getDrawablePoints(cg3::Point2d topleft, cg3::Point2d topright, cg3::Point2d bottomleft, cg3::Point2d bottomright);
+
+    static double getYMin();
+    static void setYMin(double newYMin);
+
+    static double getYMax();
+    static void setYMax(double newYMax);
+
+    // y coordinates of the BB: they are useful for calculating the 4 verteces of a trapezoid
+    static double yMin, yMax;
+    cg3::Point2d topLeftVertex, topRightVertex, bottomLeftVertex, bottomRightVertex;
+
 
 private:
+
     // TODO impossible to use references. Should I use pointers? :thinking:
     OrderedSegment top;     // reference to the top segment
     OrderedSegment bottom;  // reference to the bottom segment
     cg3::Point2d leftp;      // reference to the the left point
     cg3::Point2d rightp;     // reference to the top right point
-
 
     // source: https://riptutorial.com/cplusplus/example/13085/iteration-over-an-enum
     std::array<Trapezoid*, N_NEIGHBORS> neighbors = {}; // array containing the adjacent trapezoids.
@@ -68,6 +81,7 @@ private:
     DAGNode* nodeContainer = nullptr;
 
 };
+
 
 //extern struct DAG::Node dagNode;
 

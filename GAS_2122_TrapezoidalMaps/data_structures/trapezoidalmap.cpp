@@ -10,10 +10,14 @@ void TrapezoidalMap::initialize(const cg3::BoundingBox2& B)
 {
 
     // Adding the verteces of the BB
-    auto topleft     = cg3::Point2d(B.min()+B.lengthY());
+    auto yMin = B.min().y();
+    auto yMax = B.max().y();
+    Trapezoid::setYMax(yMax);
+    Trapezoid::setYMin(yMin);
+    auto topleft     = cg3::Point2d(B.min().x(), yMax);
     auto topright    = cg3::Point2d(B.max());
     auto bottomleft  = cg3::Point2d(B.min());
-    auto bottomright = cg3::Point2d(B.min()+B.lengthX());
+    auto bottomright = cg3::Point2d(B.max().x(), yMin);
 
     // Create a trapezoid from the bounding box
     auto top = OrderedSegment(topleft, topright);

@@ -1,7 +1,29 @@
 #include "trapezoid.h"
+#include <cg3/geometry/intersections2.h>
+
+double Trapezoid::yMin = -1;
+double Trapezoid::yMax = -1;
 
 Trapezoid::Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp) : top(t), bottom(b), leftp(lp), rightp(rp)
 {
+    //  PRE-COMPUTING THE 4 VERTECES THAT MADE UP THE TRAPEZOID
+    cg3::Segment2d leftVerticalLine = cg3::Segment2d(
+                cg3::Point2d(lp.x(), Trapezoid::getYMax()),
+                cg3::Point2d(lp.x(), Trapezoid::getYMin())
+                );
+    cg3::Segment2d rightVerticalLine = cg3::Segment2d(
+                    cg3::Point2d(rp.x(), Trapezoid::getYMax()),
+                    cg3::Point2d(rp.x(), Trapezoid::getYMin())
+                    );
+    char code;
+    cg3::checkSegmentIntersection2(leftVerticalLine,  t, code, cg3::CG3_EPSILON, topLeftVertex);
+    assert(code == 'v' || code == '1');
+    cg3::checkSegmentIntersection2(leftVerticalLine,  b, code, cg3::CG3_EPSILON, bottomLeftVertex);
+    assert(code == 'v' || code == '1');
+    cg3::checkSegmentIntersection2(rightVerticalLine, t, code, cg3::CG3_EPSILON, topRightVertex);
+    assert(code == 'v' || code == '1');
+    cg3::checkSegmentIntersection2(rightVerticalLine, t, code, cg3::CG3_EPSILON, bottomRightVertex);
+    assert(code == 'v' || code == '1');
 
 }
 
@@ -105,6 +127,33 @@ DAGNode* Trapezoid::getPointerToDAG() {
     return nodeContainer;
 }
 
+double Trapezoid::getYMin()
+{
+    return Trapezoid::yMin;
+}
+
+void Trapezoid::setYMin(double newYMin)
+{
+    Trapezoid::yMin = newYMin;
+}
+
+double Trapezoid::getYMax()
+{
+    return Trapezoid::yMax;
+}
+
+void Trapezoid::setYMax(double newYMax)
+{
+    Trapezoid::yMax = newYMax;
+}
+//
+
+//
+void getDrawablePoints(cg3::Point2d topleft, cg3::Point2d topright, cg3::Point2d bottomleft, cg3::Point2d bottomright) {
+
+//    cg3::checkSegmentIntersection2();
+}
+//
 
 void Trapezoid::swap(Trapezoid& other)
 {
