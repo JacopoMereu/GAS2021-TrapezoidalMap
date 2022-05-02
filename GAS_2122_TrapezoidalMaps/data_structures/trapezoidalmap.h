@@ -11,9 +11,9 @@ class TrapezoidalMap
 {
 public:
     TrapezoidalMap();
-    void initialize(const cg3::BoundingBox2& B);
-    void addSegment(OrderedSegment& segment);
-
+    virtual void initialize(const cg3::BoundingBox2& B);
+    void addSegment(const cg3::Segment2d& segment);
+    Trapezoid* pointLocation(cg3::Point2d pointToQuery);
 protected:
     std::vector<Trapezoid*> T;   // Contains the trapezoids
 

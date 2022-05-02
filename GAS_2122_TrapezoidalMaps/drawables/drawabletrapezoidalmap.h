@@ -16,7 +16,13 @@ public:
     double sceneRadius() const;
 
     // other methods
+    void initialize(const cg3::BoundingBox2& B);
 
+    const cg3::BoundingBox2 &getBoundingBox() const;
+    void setBoundingBox(const cg3::BoundingBox2 &newB);
+
+private:
+    cg3::BoundingBox2 B;
 
 };
 

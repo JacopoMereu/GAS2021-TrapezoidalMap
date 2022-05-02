@@ -9,17 +9,17 @@ TrapezoidalMap::TrapezoidalMap() {}
 void TrapezoidalMap::initialize(const cg3::BoundingBox2& B)
 {
 
-    // Adding the verteces of the BB
+    // Saving the y-coordinates in the Trapezoid class
     auto yMin = B.min().y();
     auto yMax = B.max().y();
     Trapezoid::setYMax(yMax);
     Trapezoid::setYMin(yMin);
+
+    // Create a trapezoid from the bounding box
     auto topleft     = cg3::Point2d(B.min().x(), yMax);
     auto topright    = cg3::Point2d(B.max());
     auto bottomleft  = cg3::Point2d(B.min());
     auto bottomright = cg3::Point2d(B.max().x(), yMin);
-
-    // Create a trapezoid from the bounding box
     auto top = OrderedSegment(topleft, topright);
     auto bottom = OrderedSegment(bottomleft, bottomright);
     Trapezoid boundingbox_trapezoid = Trapezoid(top, bottom, bottomleft, topright);
@@ -31,11 +31,18 @@ void TrapezoidalMap::initialize(const cg3::BoundingBox2& B)
 }
 
 
-void TrapezoidalMap::addSegment(OrderedSegment& segment) {
-    // 1) Find the faces in the trapezoidal map T that intersect the segment
+void TrapezoidalMap::addSegment(const cg3::Segment2d& segment) {
+    // Find the faces in the trapezoidal map T that intersect the segment
+    // sorted from left to right
+    OrderedSegment orderedSegment = OrderedSegment(segment);
     auto facesIntersected = std::vector<Trapezoid*>();
-    followSegment(segment, facesIntersected);
-    split(segment, facesIntersected);
+    followSegment(orderedSegment , facesIntersected);
+    // Split those faces and update the map/dag with the new faces
+    split(orderedSegment , facesIntersected);
+}
+
+Trapezoid* TrapezoidalMap::pointLocation(cg3::Point2d pointToQuery) {
+    return D.query(pointToQuery);
 }
 // ----------------------- END PUBLIC SECTION -----------------------
 
@@ -76,10 +83,10 @@ void TrapezoidalMap::followSegment(OrderedSegment& s, std::vector<Trapezoid*> fa
 
 void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersectingFaces) {
 // it's better to pass the whole list to the function instead of a single trapezoid (because there are several scenarios to handle...)
-    const auto N_FACES = intersectingFaces.size();
+    const size_t N_FACES = intersectingFaces.size();
     /* EASIEST CASE */
     if(N_FACES== 1) {
-        Trapezoid* oldFace = intersectingFaces[0];
+        Trapezoid* oldFace = intersectingFaces.front();
 
         // left
         Trapezoid leftNewFace = Trapezoid(oldFace->getTop(), oldFace->getBottom(), oldFace->getLeftp(), s.getLeftmost());
@@ -135,9 +142,9 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
         T.push_back(&rightNewFace);
         T.push_back(&bottomNewFace);*/
         T.push_back(&leftNewFace);
-        T.push_back(&leftNewFace);
-        T.push_back(&leftNewFace);
-        T.push_back(&leftNewFace);
+        T.push_back(&topNewFace);
+        T.push_back(&bottomNewFace);
+        T.push_back(&rightNewFace);
 
         // Upgrade the DAG
         D.replaceNodeWithSubtree(oldFace->getPointerToDAG(), s, &leftNewFace, &topNewFace, &bottomNewFace, &rightNewFace);
@@ -153,10 +160,11 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
         std::vector<Trapezoid*> aboveSegmentNewFaces(N_FACES+2);
         std::vector<Trapezoid*> belowSegmentNewFaces(N_FACES+2);
 //        std::vector<Trapezoid*> finalNewFaces(2*N_FACES+2);
-        std::vector<Trapezoid*> finalNewFaces(2);
+        // source: https://stackoverflow.com/questions/17663186/initializing-a-two-dimensional-stdvector
+        std::vector<std::vector<Trapezoid*>> finalNewFaces(2, std::vector <Trapezoid*> (N_FACES, nullptr));
 
         /* SPLIT THE OLD FACES */
-        for(auto i = 0; i<N_FACES; i++){
+        for(size_t i = 0; i<N_FACES; i++){
             Trapezoid* oldFace = intersectingFaces[i];
             // first face
             if(i==0){
@@ -228,7 +236,7 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
 //            tmpTopFace->setUpperLeftNeighbor(intersectingFaces[i]->getUpperLeftNeighbor());
 //            if(intersectingFaces[i]->getUpperLeftNeighbor() != nullptr)
 //                intersectingFaces[i]->getUpperLeftNeighbor()->replaceNeighbor(intersectingFaces[i], tmpTopFace);
-            tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces[i], {Trapezoid::TOPLEFT, Trapezoid::TOPRIGHT});
+            tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces[i-1], {Trapezoid::TOPLEFT, Trapezoid::TOPRIGHT});
             /* BELOW */
             auto tmpBottomFace = belowSegmentNewFaces[i];
 
@@ -244,11 +252,11 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
 //            tmpBottomFace->setLowerRightNeighbor(intersectingFaces[i]->getLowerRightNeighbor());
 //            if(intersectingFaces[i]->getLowerRightNeighbor() != nullptr)
 //                intersectingFaces[i]->getLowerRightNeighbor()->replaceNeighbor(intersectingFaces[i], tmpBottomFace);
-            tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces[i], {Trapezoid::BOTTOMLEFT, Trapezoid::BOTTOMRIGHT});
+            tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces[i-1], {Trapezoid::BOTTOMLEFT, Trapezoid::BOTTOMRIGHT});
         }
 
         // Merging the eventually adjacent faces with same bottom and top
-        finalNewFaces.push_back(aboveSegmentNewFaces.front());
+//        finalNewFaces.push_back(aboveSegmentNewFaces.front());
 
         /* ABOVE */
         for(auto i = 1; i < N_FACES+1; i++) {
@@ -267,14 +275,14 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
                 mergedFace.replaceNeighborsFromTrapezoid(aboveSegmentNewFaces[i], {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
                 mergedFace.replaceNeighborsFromTrapezoid(aboveSegmentNewFaces[j], {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
 
-                finalNewFaces.push_back(&mergedFace);
+                finalNewFaces[0][i] = &mergedFace;
 
                 // Jump to the face after Fj
                 i = j;
             }
             // Otherwise
             else {
-                finalNewFaces.push_back(aboveSegmentNewFaces[i]);
+                finalNewFaces[0][i] = aboveSegmentNewFaces[i];
             }
         }
 
@@ -295,17 +303,34 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*> intersecti
                 mergedFace.replaceNeighborsFromTrapezoid(belowSegmentNewFaces[i], {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
                 mergedFace.replaceNeighborsFromTrapezoid(belowSegmentNewFaces[j], {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
 
-                finalNewFaces.push_back(&mergedFace);
+                finalNewFaces[1][i] = &mergedFace;
 
                 // Jump to the face after Fj
                 i = j;
             }
             // Otherwise
             else {
-                finalNewFaces.push_back(belowSegmentNewFaces[i]);
+                finalNewFaces[1][i] = belowSegmentNewFaces[i];
             }
         }
-        finalNewFaces.push_back(aboveSegmentNewFaces.back());
+//        finalNewFaces.push_back(aboveSegmentNewFaces.back());
+
+        // Update the DAG
+        for(auto i = 0; i < N_FACES; i++) {
+            if(i==1) {
+                D.replaceNodeWithSubtree(intersectingFaces[i]->getPointerToDAG(), s, aboveSegmentNewFaces.front(), finalNewFaces[0][i], finalNewFaces[1][i], nullptr);
+            } else if (i == N_FACES-1) {
+                D.replaceNodeWithSubtree(intersectingFaces[i]->getPointerToDAG(), s, nullptr, finalNewFaces[0][i], finalNewFaces[1][i], nullptr);
+            } else {
+                D.replaceNodeWithSubtree(intersectingFaces[i]->getPointerToDAG(), s, nullptr, finalNewFaces[0][i], finalNewFaces[1][i], aboveSegmentNewFaces.back());
+            }
+        }
+
+        // Clean
+        intersectingFaces.clear();
+        aboveSegmentNewFaces.clear();
+        belowSegmentNewFaces.clear();
+        finalNewFaces.clear();
     }
     /**/
 }

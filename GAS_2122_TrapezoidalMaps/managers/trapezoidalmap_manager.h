@@ -13,7 +13,7 @@
 #include "drawables/drawable_trapezoidalmap_dataset.h"
 
 /* ---------------- My declarations ----------------*/
-#include "data_structures/trapezoidalmap.h"
+#include "drawables/drawabletrapezoidalmap.h"
 /*------------------------------------------------ */
 
 namespace Ui {
@@ -60,7 +60,7 @@ private:
 
     //---------------------------------------------------------------------
     //Declare your attributes here
-    TrapezoidalMap trapezoidalMap;
+    DrawableTrapezoidalMap drawableTrapezoidalMap;
 
 
 

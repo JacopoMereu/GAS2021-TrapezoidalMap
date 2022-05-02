@@ -5,6 +5,10 @@ DrawableTrapezoidalMap::DrawableTrapezoidalMap()
 
 }
 
+void DrawableTrapezoidalMap::initialize(const cg3::BoundingBox2& B) {
+    TrapezoidalMap::initialize(B);
+    setBoundingBox(B);
+}
 
 void DrawableTrapezoidalMap::draw() const
 {
@@ -31,13 +35,23 @@ void DrawableTrapezoidalMap::draw() const
 //TODO Should be equal to the implementation in trapezoidalmap_dataset (?)
 cg3::Point3d DrawableTrapezoidalMap::sceneCenter() const
 {
-    /*const cg3::BoundingBox2& boundingBox = this->getBoundingBox();
-    return cg3::Point3d(boundingBox.center().x(), boundingBox.center().y(), 0);*/
+    const cg3::BoundingBox2& boundingBox = this->getBoundingBox();
+    return cg3::Point3d(boundingBox.center().x(), boundingBox.center().y(), 0);
 }
 
 //TODO Should be equal to the implementation in trapezoidalmap_dataset (?)
 double DrawableTrapezoidalMap::sceneRadius() const
 {
-    /*const cg3::BoundingBox2& boundingBox = this->getBoundingBox();
-    return boundingBox.diag();*/
+    const cg3::BoundingBox2& boundingBox = this->getBoundingBox();
+    return boundingBox.diag();
+}
+
+const cg3::BoundingBox2 &DrawableTrapezoidalMap::getBoundingBox() const
+{
+    return B;
+}
+
+void DrawableTrapezoidalMap::setBoundingBox(const cg3::BoundingBox2 &newB)
+{
+    B = newB;
 }
