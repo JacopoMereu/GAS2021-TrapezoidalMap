@@ -14,17 +14,19 @@ public:
     virtual void initialize(const cg3::BoundingBox2& B);
     void addSegment(const cg3::Segment2d& segment);
     Trapezoid* pointLocation(cg3::Point2d pointToQuery);
+    void clear();
+
 protected:
     std::vector<Trapezoid*> T;   // Contains the trapezoids
 
 private:
     DAG D;
-    std::vector<cg3::Point2d> points;  // Contains the points
-    std::vector<OrderedSegment> segments;    // Contains the segments
+    /*std::vector<cg3::Point2d> points;  // Contains the points
+    std::vector<OrderedSegment> segments;    // Contains the segments*/
 
 
-    void followSegment(OrderedSegment& s, std::vector<Trapezoid*> facesIntersectingSegment);
-    void split(OrderedSegment& s, std::vector<Trapezoid*> intersectingFaces);
+    void followSegment(OrderedSegment& s, std::vector<Trapezoid*>& facesIntersectingSegment);
+    void split(OrderedSegment& s, std::vector<Trapezoid*>& intersectingFaces);
 //    void splitFaceIntersectingSegment(Trapezoid& face, OrderedSegment s, std::vector<Trapezoid>& newFaces);
 };
 

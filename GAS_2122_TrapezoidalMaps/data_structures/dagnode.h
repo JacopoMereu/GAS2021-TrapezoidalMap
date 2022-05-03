@@ -12,6 +12,7 @@ class DAGNode
 {
 public:
     //DAGNode(cg3::Point2* p);
+//   ~DAGNode();
     enum nodeType {point, segment, trapezoid};
 
     // Content of a node

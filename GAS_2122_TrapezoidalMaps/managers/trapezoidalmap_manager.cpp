@@ -245,9 +245,6 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
     //TrapezoidalMap and DAG are two separate general purpose data structures that an algorithm uses.
     //THINK ABOUT YOUR STRUCTURE BEFORE WRITING CODE!
     auto faceToHighlight = drawableTrapezoidalMap.pointLocation(queryPoint);
-
-
-
     //#####################################################################
 
 
@@ -258,17 +255,15 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
     //to do that).
     /// TODO Add a method to change the color of the trapezoid
     /// It should dedicate a colour only for the highlight (like red)
-
-
-
-
+    drawableTrapezoidalMap.highlightTrapezoid(faceToHighlight);
+    updateCanvas();
     //#####################################################################
 
 
 
     //You can delete this line after you implement the algorithm: it is
     //just needed to suppress the unused-variable warning
-    CG3_SUPPRESS_WARNING(queryPoint);
+//    CG3_SUPPRESS_WARNING(queryPoint);
 }
 
 /**
@@ -279,8 +274,7 @@ void TrapezoidalMapManager::clearTrapezoidalMap()
     //---------------------------------------------------------------------
     //Clear here your trapezoidal map data structure.
     /// TODO Add deconstructor for DAGNode
-
-
+    drawableTrapezoidalMap.clear();
     //#####################################################################
 }
 

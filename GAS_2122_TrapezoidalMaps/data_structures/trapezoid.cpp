@@ -6,6 +6,7 @@ double Trapezoid::yMax = -1;
 
 Trapezoid::Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp) : top(t), bottom(b), leftp(lp), rightp(rp)
 {
+//    for(int i = 0; i < N_NEIGHBORS;)
     //  PRE-COMPUTING THE 4 VERTECES THAT MADE UP THE TRAPEZOID
     cg3::Segment2d leftVerticalLine = cg3::Segment2d(
                 cg3::Point2d(lp.x(), Trapezoid::getYMax()),
@@ -16,14 +17,54 @@ Trapezoid::Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3
                     cg3::Point2d(rp.x(), Trapezoid::getYMin())
                     );
     char code;
-    cg3::checkSegmentIntersection2(leftVerticalLine,  t, code, cg3::CG3_EPSILON, topLeftVertex);
+    double thres = 1; // cg3::CG3_EPSILON
+/*    cg3::checkSegmentIntersection2(leftVerticalLine,  t, code, thres, topLeftVertex);
     assert(code == 'v' || code == '1');
-    cg3::checkSegmentIntersection2(leftVerticalLine,  b, code, cg3::CG3_EPSILON, bottomLeftVertex);
+
+    cg3::checkSegmentIntersection2(rightVerticalLine, t, code, thres, topRightVertex);
     assert(code == 'v' || code == '1');
-    cg3::checkSegmentIntersection2(rightVerticalLine, t, code, cg3::CG3_EPSILON, topRightVertex);
-    assert(code == 'v' || code == '1');
-    cg3::checkSegmentIntersection2(rightVerticalLine, t, code, cg3::CG3_EPSILON, bottomRightVertex);
-    assert(code == 'v' || code == '1');
+
+    cg3::checkSegmentIntersection2(rightVerticalLine, b, code, thres, bottomRightVertex);
+    assert(code == 'v' || code== '1');
+
+   cg3::checkSegmentIntersection2(leftVerticalLine,  b, code, thres, bottomLeftVertex);
+        assert(code == 'v' || code == '1');
+*/
+
+    if(lp == b.getLeftmost()) {
+        this->bottomLeftVertex = lp;
+        cg3::checkSegmentIntersection2(leftVerticalLine,  t, code, thres, topLeftVertex);
+    }
+    else if (lp == t.getLeftmost()) {
+        this->topLeftVertex = lp;
+        cg3::checkSegmentIntersection2(leftVerticalLine,  b, code, thres, bottomLeftVertex);
+        assert(code == 'v' || code == '1');
+    } else {
+        cg3::checkSegmentIntersection2(leftVerticalLine,  t, code, thres, topLeftVertex);
+        assert(code == 'v' || code == '1');
+        cg3::checkSegmentIntersection2(leftVerticalLine,  b, code, thres, bottomLeftVertex);
+        assert(code == 'v' || code == '1');
+    }
+
+    //
+
+    if(rp == b.getRightmost()) {
+        this->bottomRightVertex = rp;
+        cg3::checkSegmentIntersection2(rightVerticalLine,  t, code, thres, topRightVertex);
+    }
+    else if (rp == t.getRightmost()) {
+        this->topRightVertex = rp;
+        cg3::checkSegmentIntersection2(rightVerticalLine,  b, code, thres, bottomRightVertex);
+        assert(code == 'v' || code == '1');
+
+    } else {
+        cg3::checkSegmentIntersection2(rightVerticalLine, t, code, thres, topRightVertex);
+        assert(code == 'v' || code == '1');
+
+        cg3::checkSegmentIntersection2(rightVerticalLine, b, code, thres, bottomRightVertex);
+        assert(code == 'v' || code== '1');
+    }
+
 
 }
 
@@ -106,7 +147,7 @@ Trapezoid* Trapezoid::getLowerRightNeighbor() const {
 bool Trapezoid::replaceNeighbor(Trapezoid* oldNeighbor, Trapezoid* newNeighbor) {
     bool hasReplaced = false;
     //TODO da ottimizare il senso di ricerca
-    for (neighborsCode i = TOPLEFT; i < BOTTOMRIGHT; i = neighborsCode(i + 1))
+    for (neighborsCode i = TOPLEFT; i <= BOTTOMRIGHT; i = neighborsCode(i + 1))
     {
         if(neighbors[i] == oldNeighbor) {
             neighbors[i] = newNeighbor;
@@ -145,13 +186,6 @@ double Trapezoid::getYMax()
 void Trapezoid::setYMax(double newYMax)
 {
     Trapezoid::yMax = newYMax;
-}
-//
-
-//
-void getDrawablePoints(cg3::Point2d topleft, cg3::Point2d topright, cg3::Point2d bottomleft, cg3::Point2d bottomright) {
-
-//    cg3::checkSegmentIntersection2();
 }
 //
 

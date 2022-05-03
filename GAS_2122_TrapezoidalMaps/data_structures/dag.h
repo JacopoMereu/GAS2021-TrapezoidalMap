@@ -16,11 +16,13 @@ public:
     void replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segmentSplitting,
                                 Trapezoid* left=nullptr, Trapezoid* top=nullptr, Trapezoid* bottom=nullptr, Trapezoid* right=nullptr);
     Trapezoid* query(const cg3::Point2d& q);
+    void clear();
 
 private:
     // root
     DAGNode* root;
     Trapezoid* queryRec(const cg3::Point2d& q, DAGNode* root);
+    void clearRec(DAGNode* root);
 };
 
 

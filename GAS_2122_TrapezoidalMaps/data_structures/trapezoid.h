@@ -3,6 +3,7 @@
 
 #include "orderedsegment.h"
 #include <cg3/geometry/point2.h>
+#include <cg3/utilities/color.h>
 //#include "dag.h"
 //#include "dagnode.h"
 
@@ -53,8 +54,6 @@ public:
     DAGNode* getPointerToDAG();
 
     // draw methods
-    void getDrawablePoints(cg3::Point2d topleft, cg3::Point2d topright, cg3::Point2d bottomleft, cg3::Point2d bottomright);
-
     static double getYMin();
     static void setYMin(double newYMin);
 
@@ -64,7 +63,8 @@ public:
     // y coordinates of the BB: they are useful for calculating the 4 verteces of a trapezoid
     static double yMin, yMax;
     cg3::Point2d topLeftVertex, topRightVertex, bottomLeftVertex, bottomRightVertex;
-
+    cg3::Color color = (0.0f,0.0f,0.0f);
+    bool isHighlighted = false;
 
 private:
 
@@ -75,7 +75,7 @@ private:
     cg3::Point2d rightp;     // reference to the top right point
 
     // source: https://riptutorial.com/cplusplus/example/13085/iteration-over-an-enum
-    std::array<Trapezoid*, N_NEIGHBORS> neighbors = {}; // array containing the adjacent trapezoids.
+    std::array<Trapezoid*, N_NEIGHBORS> neighbors = {nullptr, nullptr, nullptr, nullptr}; // array containing the adjacent trapezoids.
 
     // connection with the dag
     DAGNode* nodeContainer = nullptr;

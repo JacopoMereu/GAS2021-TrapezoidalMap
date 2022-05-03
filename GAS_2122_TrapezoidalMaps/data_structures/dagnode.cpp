@@ -8,7 +8,8 @@ DAGNode::DAGNode(cg3::Point2* p) {
 }*/
 // PRIVATE
 DAGNode* DAGNode::newNode(nodeType type, info info) {
-    DAGNode* new_node = (DAGNode*)malloc(sizeof(DAGNode));
+//    DAGNode* new_node = (DAGNode*)malloc(sizeof(DAGNode));
+    DAGNode* new_node = new DAGNode;
     assert(new_node != nullptr);
 
     new_node->type = type;

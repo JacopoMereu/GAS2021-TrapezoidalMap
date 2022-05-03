@@ -31,10 +31,10 @@ void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segment
     /* COMPLEX CASE: the whole segment is inside a face */
     if(left != nullptr && right != nullptr) {
         newRoot = DAGNode::generateXNode(&segmentSplitting.getLeftmost());
-        newRoot->lc = DAGNode::generateLeafNode(left);
-        newRoot->rc = DAGNode::generateXNode(&segmentSplitting.getRightmost());
-        newRoot->rc->lc = segmentNode;
-        newRoot->rc->rc = DAGNode::generateLeafNode(right);
+        nodeToReplace->lc = DAGNode::generateLeafNode(left);
+        nodeToReplace->rc = DAGNode::generateXNode(&segmentSplitting.getRightmost());
+        nodeToReplace->rc->lc = segmentNode;
+        nodeToReplace->rc->rc = DAGNode::generateLeafNode(right);
         // replace the old node with the new node
         nodeToReplace->convertToXNode(newRoot->getPointStored());
     }
@@ -42,22 +42,25 @@ void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segment
     // If it's the first face
     else if (left != nullptr) {
         newRoot = DAGNode::generateXNode(&segmentSplitting.getLeftmost());
-        newRoot->lc = DAGNode::generateLeafNode(left);
-        newRoot->rc = segmentNode;
+        nodeToReplace->lc = DAGNode::generateLeafNode(left);
+        nodeToReplace->rc = segmentNode;
         nodeToReplace->convertToXNode(newRoot->getPointStored());
     }
     // If it's the last (k-th) face
     else if (right != nullptr) {
         newRoot = DAGNode::generateXNode(&segmentSplitting.getRightmost());
-        newRoot->lc = segmentNode;
-        newRoot->rc = DAGNode::generateLeafNode(right);
+        nodeToReplace->lc = segmentNode;
+        nodeToReplace->rc = DAGNode::generateLeafNode(right);
         nodeToReplace->convertToXNode(newRoot->getPointStored());
     }
     // Else it's a i-th face with i in [2, k-1]
     else {
         newRoot = segmentNode;
+        nodeToReplace->lc = segmentNode->lc;
+        nodeToReplace->rc = segmentNode->rc;
         nodeToReplace->convertToYNode(newRoot->getOrientedSegmentStored());
     }
+    delete newRoot;
 }
 
 
@@ -65,8 +68,18 @@ Trapezoid* DAG::query(const cg3::Point2d& q) {
     return queryRec(q, this->root);
 }
 
+void DAG::clear() {
+    clear();
+}
 // PRIVATE SECTION
+void DAG::clearRec(DAGNode* root) {
+    if(root == nullptr) return;
 
+    clearRec(root->lc);
+    clearRec(root->rc);
+
+    delete root;
+}
 
 Trapezoid* DAG::queryRec(const cg3::Point2d& q, DAGNode* node) {
     switch (node->getNodeType()) {
@@ -82,6 +95,7 @@ Trapezoid* DAG::queryRec(const cg3::Point2d& q, DAGNode* node) {
             return queryRec(q, node->rc);
         }
         //TODO Should I handle q.x == node.x =?
+        assert(false);
         break;
     }
         // y-node
@@ -92,12 +106,10 @@ Trapezoid* DAG::queryRec(const cg3::Point2d& q, DAGNode* node) {
         // q above segment => go left
         case above:
             return queryRec(q, node->lc);
-            break;
 
             // q below segment => go right
         case below:
             return queryRec(q, node->rc);
-            break;
 
             //TODO Should I handle q on the segment =?
             /*case center:
@@ -114,12 +126,10 @@ Trapezoid* DAG::queryRec(const cg3::Point2d& q, DAGNode* node) {
     case DAGNode::trapezoid: {
         // if we reach a leaf, the point is contained in the trapezoid associated to the node
         return node->getTrapezoidStored();
-        break;
     }
         // shpuld be impossible
     default:
         assert(false);
-        break;
     }
 
     assert(false);
