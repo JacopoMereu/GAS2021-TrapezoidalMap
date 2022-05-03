@@ -19,7 +19,7 @@ DAGNode* DAGNode::newNode(nodeType type, info info) {
 
     if(type == trapezoid) {
         assert(info.t->getPointerToDAG() == nullptr); // should be null
-                info.t->setPointerToDAG(new_node);
+        info.t->setPointerToDAG(new_node);
 
     }
     return new_node;

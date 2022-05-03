@@ -65,7 +65,7 @@ public:
     cg3::Point2d topLeftVertex, topRightVertex, bottomLeftVertex, bottomRightVertex;
     cg3::Color color = (0.0f,0.0f,0.0f);
     bool isHighlighted = false;
-
+    bool isBeingSplitted = false;
 private:
 
     // TODO impossible to use references. Should I use pointers? :thinking:

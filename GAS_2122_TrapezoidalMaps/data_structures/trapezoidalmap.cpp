@@ -67,6 +67,7 @@ void TrapezoidalMap::followSegment(OrderedSegment& s, std::vector<Trapezoid*>& f
     Trapezoid* currentFace = D.query(p);
 
     facesIntersectingSegment.push_back(currentFace);
+    currentFace->isBeingSplitted = true;
     //  while q lies to the right of rightp(dj)
     while(currentFace != nullptr && q.x() > currentFace->getRightp().x()) {
         ///Position pos = OrientationUtility::getPointPositionRespectToLine(tmp->getRightp(), s);
@@ -86,8 +87,10 @@ void TrapezoidalMap::followSegment(OrderedSegment& s, std::vector<Trapezoid*>& f
         }
 
         //
-        if(currentFace != nullptr)
+        if(currentFace != nullptr) {
             facesIntersectingSegment.push_back(currentFace);
+            currentFace->isBeingSplitted = true;
+        }
     }
 //    if(tmp != nullptr && tmp != currentFace && tmp->getLeftp().x()<=q.x()&&q.x()<=tmp->getRightp().x())
 //        facesIntersectingSegment.push_back(tmp);
@@ -118,9 +121,11 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*>& intersect
 
         // top
         topNewFace->setUpperLeftNeighbor(leftNewFace);
-//        topNewFace.setLowerLeftNeighbor(onlyFace->getLowerLeftNeighbor()); does the LL exist?
         topNewFace->setUpperRightNeighbor(rightNewFace);
-//        topNewFace.setLowerRightNeighbor(bottomNewFace); does the LR exist?
+        /// TODO test
+       /* topNewFace->setLowerLeftNeighbor(leftNewFace);
+        topNewFace->setLowerRightNeighbor(rightNewFace);*/
+
 
         // right
         rightNewFace->setUpperLeftNeighbor(topNewFace);
@@ -130,8 +135,9 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*>& intersect
         // bottom
         bottomNewFace->setLowerLeftNeighbor(leftNewFace);
         bottomNewFace->setLowerRightNeighbor(rightNewFace);
-
-        //TODO      do UR and UL exist?
+        /// TODO test
+        /*bottomNewFace->setUpperLeftNeighbor(leftNewFace);
+        bottomNewFace->setUpperRightNeighbor(rightNewFace);*/
 
         // Add the new faces on the trapezoidal map
         T.push_back(leftNewFace);
@@ -168,12 +174,15 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*>& intersect
                 /* split it into three parts: leftNewFace, topNewFace, bottomNewFace*/
                 // left
                 firstFace = new Trapezoid(oldFace->getTop(), oldFace->getBottom(), oldFace->getLeftp(), s.getLeftmost());
-                firstFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
                 // top
                 Trapezoid* topNewFace = new Trapezoid(oldFace->getTop(), s, s.getLeftmost(), oldFace->getRightp());
                 // bottom
                 Trapezoid* bottomNewFace = new Trapezoid(s, oldFace->getBottom(), s.getLeftmost(), oldFace->getRightp());
 
+                //
+                firstFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
+                firstFace->setUpperRightNeighbor(topNewFace);
+                firstFace->setLowerRightNeighbor(bottomNewFace);
                 //
                 aboveSegmentNewFaces.at(i)=  firstFace;
                 belowSegmentNewFaces.at(i) = firstFace;
@@ -186,13 +195,16 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*>& intersect
                 /* split it into three parts: topNewFace, bottomNewFace, rightNewFace*/
                 // right
                 lastFace = new Trapezoid(oldFace->getTop(), oldFace->getBottom(), s.getRightmost(), oldFace->getRightp());
-                lastFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
 
                 // top
                 Trapezoid* topNewFace = new Trapezoid(oldFace->getTop(), s, oldFace->getLeftp(), s.getRightmost());
                 // bottom
                 Trapezoid* bottomNewFace = new Trapezoid(s, oldFace->getBottom(), oldFace->getLeftp(), s.getRightmost());
 
+                //
+                lastFace->setUpperLeftNeighbor(topNewFace);
+                lastFace->setLowerLeftNeighbor(bottomNewFace);
+                lastFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
                 //
                 aboveSegmentNewFaces.at(i+1) = topNewFace;
                 belowSegmentNewFaces.at(i+1) = bottomNewFace;
@@ -226,9 +238,81 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*>& intersect
             // LowerLeft
             tmpTopFace->setLowerLeftNeighbor(aboveSegmentNewFaces.at(i-1));
             // UpperLeft and UpperRight
-            tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPLEFT, Trapezoid::TOPRIGHT});
+            if(i!=1) {
+                ///tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPLEFT});
+                if(intersectingFaces.at(i-1)->getUpperLeftNeighbor()!=nullptr && intersectingFaces.at(i-1)->getUpperLeftNeighbor()->isBeingSplitted) {
+                    //tmpTopFace->setUpperLeftNeighbor(aboveSegmentNewFaces.at(i-1));
+                    ;
+                } else {
+                    tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPLEFT});
+                }
 
+            } else {
+                tmpTopFace->setUpperLeftNeighbor(firstFace);
+            }
+            if(i!=aboveSegmentNewFaces.size()-2) {
+                ///tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPRIGHT});
+                if(intersectingFaces.at(i-1)->getUpperRightNeighbor()!=nullptr && intersectingFaces.at(i-1)->getUpperRightNeighbor()->isBeingSplitted) {
+                    //tmpTopFace->setUpperRightNeighbor(aboveSegmentNewFaces.at(i+1));
+                    ;
+                } else {
+                    tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPRIGHT});
+                }
+            } else {
+                tmpTopFace->setUpperRightNeighbor(lastFace);
+            }
             /* BELOW */
+            Trapezoid* tmpBottomFace = belowSegmentNewFaces.at(i);
+
+            // UpperRight
+            tmpBottomFace->setUpperRightNeighbor(belowSegmentNewFaces.at(i+1));
+            // UpperLeft
+            tmpBottomFace->setUpperLeftNeighbor(belowSegmentNewFaces.at(i-1));
+            // LowerLeft and LowerRight
+            if(i!=1) {
+                ///tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMLEFT});
+                if(intersectingFaces.at(i-1)->getLowerLeftNeighbor()!=nullptr && intersectingFaces.at(i-1)->getLowerLeftNeighbor()->isBeingSplitted) {
+                    //tmpBottomFace->setLowerLeftNeighbor(belowSegmentNewFaces.at(i-1));
+                    ;
+                } else {
+                    tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMLEFT});
+                }
+            } else {
+                tmpBottomFace->setLowerLeftNeighbor(firstFace);
+            }
+            if(i!=belowSegmentNewFaces.size()-2) {
+                ///tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMRIGHT});
+                if(intersectingFaces.at(i-1)->getLowerRightNeighbor()!=nullptr && intersectingFaces.at(i-1)->getLowerRightNeighbor()->isBeingSplitted) {
+                    //tmpBottomFace->setLowerRightNeighbor(belowSegmentNewFaces.at(i+1));
+                    ;
+                } else {
+                    tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMRIGHT});
+                }
+            } else {
+                tmpBottomFace->setLowerRightNeighbor(lastFace);
+            }
+            /*
+            if(i!=1) {
+                ///TODO tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPLEFT});
+                if(std::find(intersectingFaces.begin(), intersectingFaces.end(), intersectingFaces.at(i-1)->getUpperLeftNeighbor()) != intersectingFaces.end()) {
+                     tmpTopFace->setUpperLeftNeighbor(aboveSegmentNewFaces.at(i-1));
+                } else {
+                    tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPLEFT});
+                }
+            } else {
+                tmpTopFace->setUpperLeftNeighbor(firstFace);
+            }
+            if(i!=aboveSegmentNewFaces.size()-2) {
+                if(std::find(intersectingFaces.begin(), intersectingFaces.end(), intersectingFaces.at(i-1)->getUpperRightNeighbor()) != intersectingFaces.end()) {
+                     tmpTopFace->setUpperRightNeighbor(aboveSegmentNewFaces.at(i+1));
+                } else {
+                    tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPRIGHT});
+                }
+            } else {
+                tmpTopFace->setUpperRightNeighbor(lastFace);
+            }
+
+            // BELOW
             Trapezoid* tmpBottomFace = belowSegmentNewFaces.at(i);
 
             // UpperRight
@@ -236,7 +320,29 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*>& intersect
             // UpperLeft
             tmpBottomFace->setUpperLeftNeighbor(aboveSegmentNewFaces.at(i-1));
             // LowerLeft and LowerRight
-            tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMLEFT, Trapezoid::BOTTOMRIGHT});
+//            tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMLEFT, Trapezoid::BOTTOMRIGHT});
+            if(i!=1) {
+                ///TODO tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMLEFT});
+                if(std::find(intersectingFaces.begin(), intersectingFaces.end(), intersectingFaces.at(i-1)->getLowerLeftNeighbor()) != intersectingFaces.end()) {
+                     tmpBottomFace->setLowerLeftNeighbor(belowSegmentNewFaces.at(i-1));
+                } else {
+                    tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMLEFT});
+                }
+            } else {
+                tmpBottomFace->setUpperLeftNeighbor(firstFace);
+            }
+            if(i!=aboveSegmentNewFaces.size()-2) {
+                ///TODO tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMRIGHT});.
+                if(std::find(intersectingFaces.begin(), intersectingFaces.end(), intersectingFaces.at(i-1)->getLowerRightNeighbor()) != intersectingFaces.end()) {
+                     tmpBottomFace->setLowerRightNeighbor(belowSegmentNewFaces.at(i+1));
+                } else {
+                    tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMRIGHT});
+                }
+            } else {
+                tmpBottomFace->setUpperRightNeighbor(lastFace);
+            }
+        }
+        */
         }
 
         // Merging the eventually adjacent faces with same bottom and top
@@ -289,9 +395,10 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*>& intersect
                 mergedFace->replaceNeighborsFromTrapezoid(belowSegmentNewFaces.at(i), {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
                 mergedFace->replaceNeighborsFromTrapezoid(belowSegmentNewFaces.at(j), {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
 
-                for(auto k=i; k<=j; k++)
+                for(auto k=i; k<=j; k++) {
+                    // TODO Delete tmp faces
                     finalNewFaces[1].at(k-1) = mergedFace;
-
+                }
                 T.push_back(mergedFace);
                 // Jump to the face after Fj
                 i = j;
@@ -309,9 +416,9 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*>& intersect
             if(i==0) {
                 D.replaceNodeWithSubtree(intersectingFaces.at(i)->getPointerToDAG(), s, firstFace, finalNewFaces[0].at(i), finalNewFaces[1].at(i), nullptr);
             } else if (i == N_FACES-1) {
-                D.replaceNodeWithSubtree(intersectingFaces.at(i)->getPointerToDAG(), s, nullptr, finalNewFaces[0].at(i), finalNewFaces[1].at(i), nullptr);
-            } else {
                 D.replaceNodeWithSubtree(intersectingFaces.at(i)->getPointerToDAG(), s, nullptr, finalNewFaces[0].at(i), finalNewFaces[1].at(i), lastFace);
+            } else {
+                D.replaceNodeWithSubtree(intersectingFaces.at(i)->getPointerToDAG(), s, nullptr, finalNewFaces[0].at(i), finalNewFaces[1].at(i), nullptr);
             }
         }
 
@@ -319,6 +426,7 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<Trapezoid*>& intersect
         // TODO To improve
         for(auto f : intersectingFaces) {
             auto tmp = f;
+            assert(tmp->getPointerToDAG()!=nullptr);
 //            intersectingFaces.clear();
             T.erase(std::remove(T.begin(), T.end(), tmp), T.end());;
             delete tmp;
