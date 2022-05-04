@@ -63,9 +63,12 @@ public:
     // y coordinates of the BB: they are useful for calculating the 4 verteces of a trapezoid
     static double yMin, yMax;
     cg3::Point2d topLeftVertex, topRightVertex, bottomLeftVertex, bottomRightVertex;
-    cg3::Color color = (0.0f,0.0f,0.0f);
+    cg3::Color color = cg3::Color(0.0, 0.0, 0.0);
+    std::string cname;
+    std::string ctype;
     bool isHighlighted = false;
     bool isBeingSplitted = false;
+
 private:
 
     // TODO impossible to use references. Should I use pointers? :thinking:
@@ -79,6 +82,8 @@ private:
 
     // connection with the dag
     DAGNode* nodeContainer = nullptr;
+
+    void setRandomColor();
 
 };
 

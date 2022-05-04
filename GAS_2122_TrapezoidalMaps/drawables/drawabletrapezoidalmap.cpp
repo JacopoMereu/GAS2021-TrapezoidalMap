@@ -21,7 +21,7 @@ void DrawableTrapezoidalMap::draw() const
                 glColor3f(1.0f, 0.0f, 0.0f);
             } else {
                 ///TODO to change
-                glColor3f(0.2f, 0.2f, 0.2f); // Yellow
+                glColor3f(t->color.redF(), t->color.greenF(), t->color.blueF());
             }
             glVertex2f(t->topLeftVertex.x(),     t->topLeftVertex.y());
             glVertex2f(t->topRightVertex.x(),    t->topRightVertex.y());

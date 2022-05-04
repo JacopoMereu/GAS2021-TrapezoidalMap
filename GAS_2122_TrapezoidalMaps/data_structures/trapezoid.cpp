@@ -1,11 +1,67 @@
 #include "trapezoid.h"
 #include <cg3/geometry/intersections2.h>
-
+#include <random>
 double Trapezoid::yMin = -1;
 double Trapezoid::yMax = -1;
 
+//TODO Temporary
+// source: https: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
+void Trapezoid::setRandomColor() {
+    std::random_device rd;  // Will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+    std::uniform_real_distribution<double> dis(0.0, 1.0);
+
+    assert(this->color!=nullptr);
+    if (dis(gen)<0.2) {
+        // red
+        this->color.setRedF(1.0);
+        this->color.setGreenF(0);
+        this->color.setBlueF(0);
+
+        cname="RED";
+    } else  if (dis(gen)<0.2) {
+        // green
+        this->color.setRedF(0);
+        this->color.setGreenF(1.0);
+        this->color.setBlueF(0);
+
+                cname="GREEN";
+    } else  if (dis(gen)<0.4) {
+        // blue
+        this->color.setRedF(0);
+        this->color.setGreenF(0);
+        this->color.setBlueF(1);
+
+                cname="BLUE";
+    } else  if (dis(gen)<0.6) {
+        // purple
+        this->color.setRedF(0.51);
+        this->color.setGreenF(0.51);
+        this->color.setBlueF(0);
+
+                cname="PURPLE";
+    } else  if (dis(gen)<0.8) {
+        // white
+        this->color.setRedF(1);
+        this->color.setGreenF(1);
+        this->color.setBlueF(1);
+
+                cname="WHITE";
+    } else  {
+        // black
+        this->color.setRedF(0);
+        this->color.setGreenF(0);
+        this->color.setBlueF(0);
+
+                cname="BLACK";
+    }
+    /*this->color.setRedF(dis(gen));
+    this->color.setBlueF(dis(gen));
+    this->color.setGreenF(dis(gen));*/
+}
 Trapezoid::Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp) : top(t), bottom(b), leftp(lp), rightp(rp)
 {
+    setRandomColor();
 //    for(int i = 0; i < N_NEIGHBORS;)
     //  PRE-COMPUTING THE 4 VERTECES THAT MADE UP THE TRAPEZOID
     cg3::Segment2d leftVerticalLine = cg3::Segment2d(
