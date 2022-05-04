@@ -16,15 +16,9 @@ public:
     double sceneRadius() const;
 
     // other methods
-    void initialize(const cg3::BoundingBox2& B);
-
-    const cg3::BoundingBox2 &getBoundingBox() const;
-    void setBoundingBox(const cg3::BoundingBox2 &newB);
-
     void highlightTrapezoid(Trapezoid* newLastTrapezoidHighlighted);
 
 private:
-    cg3::BoundingBox2 B;
     Trapezoid* lastTrapezoidHighlighted = nullptr;
 
 //    Trapezoid *getLastTrapezoidHighlighted() const;

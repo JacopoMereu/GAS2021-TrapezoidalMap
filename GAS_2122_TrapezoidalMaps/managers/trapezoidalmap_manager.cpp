@@ -86,7 +86,7 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     //and re-drawing it again. See how we implemented the drawing of the bounding box and 
     //the dataset.
     /// TODO What else do I have to add here?
-    mainWindow.pushDrawableObject(&drawableTrapezoidalMap);
+    mainWindow.pushDrawableObject(&drawableTrapezoidalMap, "DrawableTrapezoidalMap");
 
 
     //#####################################################################

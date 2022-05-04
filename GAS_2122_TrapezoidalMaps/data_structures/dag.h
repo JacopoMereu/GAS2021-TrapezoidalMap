@@ -20,7 +20,7 @@ public:
 
 private:
     // root
-    DAGNode* root;
+    DAGNode* root = nullptr;
     Trapezoid* queryRec(const cg3::Point2d& q, DAGNode* root);
     void clearRec(DAGNode* root);
 };

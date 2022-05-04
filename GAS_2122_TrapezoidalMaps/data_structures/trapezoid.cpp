@@ -73,20 +73,7 @@ Trapezoid::Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3
                     cg3::Point2d(rp.x(), Trapezoid::getYMin())
                     );
     char code;
-    double thres = 1; // cg3::CG3_EPSILON
-/*    cg3::checkSegmentIntersection2(leftVerticalLine,  t, code, thres, topLeftVertex);
-    assert(code == 'v' || code == '1');
-
-    cg3::checkSegmentIntersection2(rightVerticalLine, t, code, thres, topRightVertex);
-    assert(code == 'v' || code == '1');
-
-    cg3::checkSegmentIntersection2(rightVerticalLine, b, code, thres, bottomRightVertex);
-    assert(code == 'v' || code== '1');
-
-   cg3::checkSegmentIntersection2(leftVerticalLine,  b, code, thres, bottomLeftVertex);
-        assert(code == 'v' || code == '1');
-*/
-
+    double thres = cg3::CG3_EPSILON;
     if(lp == b.getLeftmost()) {
         this->bottomLeftVertex = lp;
         cg3::checkSegmentIntersection2(leftVerticalLine,  t, code, thres, topLeftVertex);
@@ -122,6 +109,17 @@ Trapezoid::Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3
     }
 
 
+}
+
+Trapezoid* Trapezoid::generateTrapezoid(const cg3::BoundingBox2 &B) {
+    auto topleft     = cg3::Point2d(B.min().x(), yMax);
+    auto topright    = cg3::Point2d(B.max());
+    auto bottomleft  = cg3::Point2d(B.min());
+    auto bottomright = cg3::Point2d(B.max().x(), yMin);
+    auto top = OrderedSegment(topleft, topright);
+    auto bottom = OrderedSegment(bottomleft, bottomright);
+    Trapezoid* boundingbox_trapezoid = new Trapezoid(top, bottom, bottomleft, topright);
+    return boundingbox_trapezoid;
 }
 
 const OrderedSegment &Trapezoid::getTop() const

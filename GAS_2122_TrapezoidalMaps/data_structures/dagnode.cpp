@@ -1,11 +1,6 @@
 #include "dagnode.h"
 
-/*
-DAGNode::DAGNode(cg3::Point2* p) {
-    DAGNode::info info;
-    info.p = p;
-    return newNode(point, info);
-}*/
+
 // PRIVATE
 DAGNode* DAGNode::newNode(nodeType type, info info) {
 //    DAGNode* new_node = (DAGNode*)malloc(sizeof(DAGNode));

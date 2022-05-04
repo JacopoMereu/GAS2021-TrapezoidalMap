@@ -4,6 +4,7 @@
 #include "orderedsegment.h"
 #include <cg3/geometry/point2.h>
 #include <cg3/utilities/color.h>
+#include "cg3/geometry/bounding_box2.h"
 //#include "dag.h"
 //#include "dagnode.h"
 
@@ -23,16 +24,15 @@ public:
     enum neighborsCode {TOPLEFT, TOPRIGHT, BOTTOMLEFT, BOTTOMRIGHT};
 
     Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp);
+    static Trapezoid* generateTrapezoid(const cg3::BoundingBox2& B);
+
 
     const OrderedSegment &getTop() const;
     void setTop(const OrderedSegment &newTop);
-
     const OrderedSegment &getBottom() const;
     void setBottom(const OrderedSegment &newBottom);
-
     const cg3::Point2d &getLeftp() const;
     void setLeftp(const cg3::Point2d &newLeftp);
-
     const cg3::Point2d &getRightp() const;
     void setRightp(const cg3::Point2d &newRightp);
 

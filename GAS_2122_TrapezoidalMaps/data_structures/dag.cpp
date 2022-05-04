@@ -79,15 +79,17 @@ Trapezoid* DAG::query(const cg3::Point2d& q) {
 
 void DAG::clear() {
     clearRec(this->root);
+    this->root=nullptr;
 }
 // PRIVATE SECTION
 void DAG::clearRec(DAGNode* root) {
     if(root == nullptr) return;
 
-    clearRec(root->lc);
-    clearRec(root->rc);
+    delete root->lc;
+    delete root->rc;
 
-    delete root;
+    if(root)
+        delete root;
 }
 
 Trapezoid* DAG::queryRec(const cg3::Point2d& q, DAGNode* node) {

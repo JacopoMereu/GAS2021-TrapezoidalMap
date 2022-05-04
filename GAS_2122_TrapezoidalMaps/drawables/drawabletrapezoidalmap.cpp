@@ -5,11 +5,6 @@ DrawableTrapezoidalMap::DrawableTrapezoidalMap()
 
 }
 
-void DrawableTrapezoidalMap::initialize(const cg3::BoundingBox2& B) {
-    TrapezoidalMap::initialize(B);
-    setBoundingBox(B);
-}
-
 void DrawableTrapezoidalMap::draw() const
 {
     // For each trapezoid
@@ -31,8 +26,8 @@ void DrawableTrapezoidalMap::draw() const
 
      /* DRAW THE VERTICAL LINES*/
      cg3::Color c = cg3::Color(0,0,0);
-     cg3::opengl::drawLine2(t->topLeftVertex, t->bottomLeftVertex, c, 2);
-     cg3::opengl::drawLine2(t->topRightVertex, t->bottomRightVertex, c, 2);
+     cg3::opengl::drawLine2(t->topLeftVertex, t->bottomLeftVertex, c, 3);
+     cg3::opengl::drawLine2(t->topRightVertex, t->bottomRightVertex, c, 3);
      //TODO To be continued
     }
 }
@@ -51,15 +46,6 @@ double DrawableTrapezoidalMap::sceneRadius() const
     return boundingBox.diag();
 }
 
-const cg3::BoundingBox2 &DrawableTrapezoidalMap::getBoundingBox() const
-{
-    return B;
-}
-
-void DrawableTrapezoidalMap::setBoundingBox(const cg3::BoundingBox2 &newB)
-{
-    B = newB;
-}
 
 //Trapezoid *DrawableTrapezoidalMap::getLastTrapezoidHighlighted() const
 //{
