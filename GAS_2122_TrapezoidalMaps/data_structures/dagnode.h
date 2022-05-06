@@ -3,7 +3,7 @@
 
 #include "cg3/geometry/point2.h"
 #include "orderedsegment.h"
-#include "trapezoid.h"
+#include "drawables/drawabletrapezoid.h"
 #include "algorithms/OrientationUtility.h"
 
 //class Trapezoid;
@@ -19,7 +19,7 @@ public:
     union info {
         const cg3::Point2d* p;
         const OrderedSegment* s;
-        Trapezoid* t;
+        DrawableTrapezoid* t;
     };
 
     /*void setNodeAsXNode(cg3::Point2d& t);
@@ -28,7 +28,7 @@ public:
 
     static DAGNode* generateXNode(const cg3::Point2d* p);
     static DAGNode* generateYNode(OrderedSegment* s);
-    static DAGNode* generateLeafNode(Trapezoid* t);
+    static DAGNode* generateLeafNode(DrawableTrapezoid* t);
     // Creates a new generic node
     static DAGNode* newNode(nodeType type, info info);
 
@@ -38,10 +38,10 @@ public:
     bool isYNode() const;
     const cg3::Point2d* getPointStored();
     const OrderedSegment* getOrientedSegmentStored() const;
-    Trapezoid* getTrapezoidStored() const;
+    DrawableTrapezoid* getTrapezoidStored() const;
     void convertToXNode(const cg3::Point2d* p);
     void convertToYNode(const OrderedSegment* s);
-    void convertToLeafNode(Trapezoid* t);
+    void convertToLeafNode(DrawableTrapezoid* t);
 
     //TODO    DAGNode* father; Maybe I don't need this
     DAGNode* lc;

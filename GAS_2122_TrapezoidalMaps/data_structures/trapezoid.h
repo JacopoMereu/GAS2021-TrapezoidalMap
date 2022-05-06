@@ -5,8 +5,6 @@
 #include <cg3/geometry/point2.h>
 #include <cg3/utilities/color.h>
 #include "cg3/geometry/bounding_box2.h"
-//#include "dag.h"
-//#include "dagnode.h"
 
 class DAGNode;
 class Trapezoid
@@ -16,15 +14,11 @@ public:
     void swap(Trapezoid& other);
     Trapezoid& operator = (Trapezoid other); //note the pass-by-value
 
-    //
-
-
     // A trapezoid built using general position segments has at most 4 neighbors
     static const size_t N_NEIGHBORS = 4;
     enum neighborsCode {TOPLEFT, TOPRIGHT, BOTTOMLEFT, BOTTOMRIGHT};
 
     Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp);
-    static Trapezoid* generateTrapezoid(const cg3::BoundingBox2& B);
 
 
     const OrderedSegment &getTop() const;
@@ -46,27 +40,18 @@ public:
     Trapezoid* getUpperRightNeighbor() const ;
     Trapezoid* getLowerLeftNeighbor()  const ;
     Trapezoid* getLowerRightNeighbor() const ;
-    // find and replace the old neighbour with the new one
+
+    // find and replace the old neighbor with the new one
     bool replaceNeighbor(Trapezoid* oldNeighbor, Trapezoid* newNeighbor);
 
     // setter/getter the leaf of the dag
     void setPointerToDAG(DAGNode* node);
     DAGNode* getPointerToDAG();
 
-    // draw methods
-    static double getYMin();
-    static void setYMin(double newYMin);
-
-    static double getYMax();
-    static void setYMax(double newYMax);
-
-    // y coordinates of the BB: they are useful for calculating the 4 verteces of a trapezoid
-    static double yMin, yMax;
-    cg3::Point2d topLeftVertex, topRightVertex, bottomLeftVertex, bottomRightVertex;
-    cg3::Color color = cg3::Color(0.0, 0.0, 0.0);
-    std::string cname;
-    std::string ctype;
-    bool isHighlighted = false;
+    //
+    static bool canMerge(const Trapezoid& t1, const Trapezoid& t2);
+    //static bool merge(const Trapezoid& t1, const Trapezoid& t2);
+    //
     bool isBeingSplitted = false;
 
 private:

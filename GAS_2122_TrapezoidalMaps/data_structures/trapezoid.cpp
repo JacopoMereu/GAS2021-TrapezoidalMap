@@ -1,162 +1,40 @@
 #include "trapezoid.h"
-#include <cg3/geometry/intersections2.h>
-#include <random>
-double Trapezoid::yMin = -1;
-double Trapezoid::yMax = -1;
 
-//TODO Temporary
-// source: https: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
-void Trapezoid::setRandomColor() {
-    std::random_device rd;  // Will be used to obtain a seed for the random number engine
-    std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<double> dis(0.0, 1.0);
-
-    assert(this->color!=nullptr);
-    if (dis(gen)<0.2) {
-        // red
-        this->color.setRedF(1.0);
-        this->color.setGreenF(0);
-        this->color.setBlueF(0);
-
-        cname="RED";
-    } else  if (dis(gen)<0.2) {
-        // green
-        this->color.setRedF(0);
-        this->color.setGreenF(1.0);
-        this->color.setBlueF(0);
-
-                cname="GREEN";
-    } else  if (dis(gen)<0.4) {
-        // blue
-        this->color.setRedF(0);
-        this->color.setGreenF(0);
-        this->color.setBlueF(1);
-
-                cname="BLUE";
-    } else  if (dis(gen)<0.6) {
-        // purple
-        this->color.setRedF(0.51);
-        this->color.setGreenF(0.51);
-        this->color.setBlueF(0);
-
-                cname="PURPLE";
-    } else  if (dis(gen)<0.8) {
-        // white
-        this->color.setRedF(1);
-        this->color.setGreenF(1);
-        this->color.setBlueF(1);
-
-                cname="WHITE";
-    } else  {
-        // black
-        this->color.setRedF(0);
-        this->color.setGreenF(0);
-        this->color.setBlueF(0);
-
-                cname="BLACK";
-    }
-    /*this->color.setRedF(dis(gen));
-    this->color.setBlueF(dis(gen));
-    this->color.setGreenF(dis(gen));*/
-}
+// Constructor
 Trapezoid::Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3::Point2d& lp, const cg3::Point2d& rp) : top(t), bottom(b), leftp(lp), rightp(rp)
 {
-    setRandomColor();
-//    for(int i = 0; i < N_NEIGHBORS;)
-    //  PRE-COMPUTING THE 4 VERTECES THAT MADE UP THE TRAPEZOID
-    cg3::Segment2d leftVerticalLine = cg3::Segment2d(
-                cg3::Point2d(lp.x(), Trapezoid::getYMax()),
-                cg3::Point2d(lp.x(), Trapezoid::getYMin())
-                );
-    cg3::Segment2d rightVerticalLine = cg3::Segment2d(
-                    cg3::Point2d(rp.x(), Trapezoid::getYMax()),
-                    cg3::Point2d(rp.x(), Trapezoid::getYMin())
-                    );
-    char code;
-    double thres = cg3::CG3_EPSILON;
-    if(lp == b.getLeftmost()) {
-        this->bottomLeftVertex = lp;
-        cg3::checkSegmentIntersection2(leftVerticalLine,  t, code, thres, topLeftVertex);
-    }
-    else if (lp == t.getLeftmost()) {
-        this->topLeftVertex = lp;
-        cg3::checkSegmentIntersection2(leftVerticalLine,  b, code, thres, bottomLeftVertex);
-        assert(code == 'v' || code == '1');
-    } else {
-        cg3::checkSegmentIntersection2(leftVerticalLine,  t, code, thres, topLeftVertex);
-        assert(code == 'v' || code == '1');
-        cg3::checkSegmentIntersection2(leftVerticalLine,  b, code, thres, bottomLeftVertex);
-        assert(code == 'v' || code == '1');
-    }
-
-    //
-
-    if(rp == b.getRightmost()) {
-        this->bottomRightVertex = rp;
-        cg3::checkSegmentIntersection2(rightVerticalLine,  t, code, thres, topRightVertex);
-    }
-    else if (rp == t.getRightmost()) {
-        this->topRightVertex = rp;
-        cg3::checkSegmentIntersection2(rightVerticalLine,  b, code, thres, bottomRightVertex);
-        assert(code == 'v' || code == '1');
-
-    } else {
-        cg3::checkSegmentIntersection2(rightVerticalLine, t, code, thres, topRightVertex);
-        assert(code == 'v' || code == '1');
-
-        cg3::checkSegmentIntersection2(rightVerticalLine, b, code, thres, bottomRightVertex);
-        assert(code == 'v' || code== '1');
-    }
-
 
 }
 
-Trapezoid* Trapezoid::generateTrapezoid(const cg3::BoundingBox2 &B) {
-    auto topleft     = cg3::Point2d(B.min().x(), yMax);
-    auto topright    = cg3::Point2d(B.max());
-    auto bottomleft  = cg3::Point2d(B.min());
-    auto bottomright = cg3::Point2d(B.max().x(), yMin);
-    auto top = OrderedSegment(topleft, topright);
-    auto bottom = OrderedSegment(bottomleft, bottomright);
-    Trapezoid* boundingbox_trapezoid = new Trapezoid(top, bottom, bottomleft, topright);
-    return boundingbox_trapezoid;
-}
-
+// setter/getter of top/bottom/left point/ right point
 const OrderedSegment &Trapezoid::getTop() const
 {
     return top;
 }
-
 void Trapezoid::setTop(const OrderedSegment &newTop)
 {
     top = newTop;
 }
-
 const OrderedSegment &Trapezoid::getBottom() const
 {
     return bottom;
 }
-
 void Trapezoid::setBottom(const OrderedSegment &newBottom)
 {
     bottom = newBottom;
 }
-
 const cg3::Point2d &Trapezoid::getLeftp() const
 {
     return leftp;
 }
-
 void Trapezoid::setLeftp(const cg3::Point2d &newLeftp)
 {
     leftp = newLeftp;
 }
-
 const cg3::Point2d &Trapezoid::getRightp() const
 {
     return this->rightp;
 }
-
 void Trapezoid::setRightp(const cg3::Point2d &newRightp)
 {
     this->rightp= newRightp;
@@ -176,16 +54,6 @@ void Trapezoid::setLowerLeftNeighbor(Trapezoid* newNeighbor) {
 void Trapezoid::setLowerRightNeighbor(Trapezoid* newNeighbor) {
     neighbors[BOTTOMRIGHT] = newNeighbor;
 }
-//
-void Trapezoid::replaceNeighborsFromTrapezoid(Trapezoid* trapezoidToReplace, std::vector<neighborsCode> neighborsToReplace) {
-    for(auto code : neighborsToReplace) {
-        this->neighbors[code] = trapezoidToReplace->neighbors[code];
-        if(trapezoidToReplace->neighbors[code] != nullptr) {
-            trapezoidToReplace->neighbors[code]->replaceNeighbor(trapezoidToReplace, this);
-        }
-    }
-}
-//
 Trapezoid* Trapezoid::getUpperLeftNeighbor() const {
     return neighbors[TOPLEFT];
 }
@@ -197,6 +65,15 @@ Trapezoid* Trapezoid::getLowerLeftNeighbor() const {
 }
 Trapezoid* Trapezoid::getLowerRightNeighbor() const {
     return neighbors[BOTTOMRIGHT];
+}
+// Replace neighbors
+void Trapezoid::replaceNeighborsFromTrapezoid(Trapezoid* trapezoidToReplace, std::vector<neighborsCode> neighborsToReplace) {
+    for(auto code : neighborsToReplace) {
+        this->neighbors[code] = trapezoidToReplace->neighbors[code];
+        if(trapezoidToReplace->neighbors[code] != nullptr) {
+            trapezoidToReplace->neighbors[code]->replaceNeighbor(trapezoidToReplace, this);
+        }
+    }
 }
 bool Trapezoid::replaceNeighbor(Trapezoid* oldNeighbor, Trapezoid* newNeighbor) {
     bool hasReplaced = false;
@@ -211,38 +88,20 @@ bool Trapezoid::replaceNeighbor(Trapezoid* oldNeighbor, Trapezoid* newNeighbor) 
     }
     return hasReplaced;
 }
-
-
-//
+// Setter/Getter pointer to the container node
 void Trapezoid::setPointerToDAG(DAGNode* node) {
     nodeContainer = node;
 }
-
 DAGNode* Trapezoid::getPointerToDAG() {
     return nodeContainer;
 }
-
-double Trapezoid::getYMin()
-{
-    return Trapezoid::yMin;
+// Merge Trapezoid
+bool Trapezoid::canMerge(const Trapezoid& t1, const Trapezoid& t2) {
+    return  t1.getTop() == t2.getTop()
+            && t1.getBottom() == t2.getBottom();
 }
 
-void Trapezoid::setYMin(double newYMin)
-{
-    Trapezoid::yMin = newYMin;
-}
-
-double Trapezoid::getYMax()
-{
-    return Trapezoid::yMax;
-}
-
-void Trapezoid::setYMax(double newYMax)
-{
-    Trapezoid::yMax = newYMax;
-}
 //
-
 void Trapezoid::swap(Trapezoid& other)
 {
 //    using std::swap; //good practice

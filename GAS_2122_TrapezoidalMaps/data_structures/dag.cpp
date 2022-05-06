@@ -10,7 +10,7 @@ DAG::DAG()
     assert (this->root == nullptr);
 }
 
-void DAG::initialize(Trapezoid* B) {
+void DAG::initialize(DrawableTrapezoid* B) {
     assert (root == nullptr);
 //    info infoB; infoB.t = &B;
 //    root = newNode(trapezoid, infoB);
@@ -18,7 +18,7 @@ void DAG::initialize(Trapezoid* B) {
 }
 
 
-void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segmentSplitting, Trapezoid* left, Trapezoid* top, Trapezoid* bottom, Trapezoid* right) {
+void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segmentSplitting, DrawableTrapezoid* left, DrawableTrapezoid* top, DrawableTrapezoid* bottom, DrawableTrapezoid* right) {
     // Double check if the node is a leaf
     assert(nodeToReplace->lc == nullptr);
     assert(nodeToReplace->rc == nullptr);
@@ -73,7 +73,7 @@ void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segment
 }
 
 
-Trapezoid* DAG::query(const cg3::Point2d& q) {
+DrawableTrapezoid* DAG::query(const cg3::Point2d& q) {
     return queryRec(q, this->root);
 }
 
@@ -92,7 +92,7 @@ void DAG::clearRec(DAGNode* root) {
         delete root;
 }
 
-Trapezoid* DAG::queryRec(const cg3::Point2d& q, DAGNode* node) {
+DrawableTrapezoid* DAG::queryRec(const cg3::Point2d& q, DAGNode* node) {
     switch (node->getNodeType()) {
     // x-node
     case DAGNode::point: {

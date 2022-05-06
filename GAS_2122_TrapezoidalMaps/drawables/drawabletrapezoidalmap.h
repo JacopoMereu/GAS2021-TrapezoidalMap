@@ -2,24 +2,28 @@
 #define DRAWABLETRAPEZOIDALMAP_H
 
 #include "data_structures/trapezoidalmap.h"
+#include "drawabletrapezoid.h"
 #include <cg3/viewer/interfaces/drawable_object.h>
-#include <cg3/viewer/opengl_objects/opengl_objects2.h>
 
 class DrawableTrapezoidalMap : public TrapezoidalMap, public cg3::DrawableObject
 {
 public:
     DrawableTrapezoidalMap();
 
-    // override of the virtual methods
+    // override of the virtual methods from DrawableObject
     void draw() const;
     cg3::Point3d sceneCenter() const;
     double sceneRadius() const;
 
+    // Override trapezoidalmap
+    void initialize(const cg3::BoundingBox2& B);
+
     // other methods
-    void highlightTrapezoid(Trapezoid* newLastTrapezoidHighlighted);
+    void highlightTrapezoid(DrawableTrapezoid* newLastTrapezoidHighlighted);
+    void resetLastTrapezoidHighlighted();
 
 private:
-    Trapezoid* lastTrapezoidHighlighted = nullptr;
+    DrawableTrapezoid* lastTrapezoidHighlighted = nullptr;
 
 //    Trapezoid *getLastTrapezoidHighlighted() const;
 };

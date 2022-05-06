@@ -2,7 +2,7 @@
 #define TRAPEZOIDALMAP_H
 
 #include "dag.h"
-#include "trapezoid.h"
+#include "drawables/drawabletrapezoid.h"
 #include <set>
 #include "cg3/geometry/bounding_box2.h"
 //#include "algorithms/OrientationUtility.h"
@@ -12,14 +12,14 @@ class TrapezoidalMap
 public:
     TrapezoidalMap();
     ~TrapezoidalMap();
-    void initialize(const cg3::BoundingBox2& B);
+    virtual void initialize(const cg3::BoundingBox2& B);
     void addSegment(const cg3::Segment2d& segment);
-    Trapezoid* pointLocation(const cg3::Point2d& pointToQuery);
+    DrawableTrapezoid* pointLocation(const cg3::Point2d& pointToQuery);
     void clear();
     std::vector<OrderedSegment*> segments;    // Contains the segments
 
 protected:
-    std::vector<Trapezoid*> T;   // Contains the trapezoids
+    std::vector<DrawableTrapezoid*> T;   // Contains the trapezoids
     const cg3::BoundingBox2 &getBoundingBox() const;
     void setBoundingBox(const cg3::BoundingBox2 &newB);
 private:
@@ -28,9 +28,11 @@ private:
     cg3::BoundingBox2 B;
 
 
-    void followSegment(OrderedSegment& s, std::vector<Trapezoid*>& facesIntersectingSegment);
-    void split(OrderedSegment& s, std::vector<Trapezoid*>& intersectingFaces);
-//    void splitFaceIntersectingSegment(Trapezoid& face, OrderedSegment s, std::vector<Trapezoid>& newFaces);
+    void followSegment(OrderedSegment& s, std::vector<DrawableTrapezoid*>& facesIntersectingSegment);
+    void split(OrderedSegment& s, std::vector<DrawableTrapezoid*>& intersectingFaces);
+    void splitSingularTrapezoid(OrderedSegment& s, DrawableTrapezoid* faceToSplit);
+    void splitMultipleTrapezoid(OrderedSegment& s, std::vector<DrawableTrapezoid*>& intersectingFaces);
+    void addTrapezoidToMap(DrawableTrapezoid* trapezoidToAdd);
 };
 
 #endif // TRAPEZOIDALMAP_H
