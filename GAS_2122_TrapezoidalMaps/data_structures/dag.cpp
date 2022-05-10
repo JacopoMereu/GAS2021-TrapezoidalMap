@@ -1,7 +1,7 @@
 #include "dag.h"
 
 #include "cg3/geometry/utils2.h"
-
+#include "cg3/geometry/line2.h"
 /*
  *  Set the DAG with a leaf containing the bounding box
 */
@@ -71,9 +71,15 @@ void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segment
 }
 
 
-DrawableTrapezoid* DAG::query(const cg3::Point2d& q) {
-    return queryRec(q, this->root);
+DrawableTrapezoid* DAG::queryFaceContaininingPoint(const cg3::Point2d& q) {
+    OrderedSegment s = OrderedSegment(q,q);
+    return queryRec(s, this->root);
 }
+
+DrawableTrapezoid* DAG::queryLeftmostFaceIntersectingSegment(const OrderedSegment& s) {
+    return queryRec(s, this->root);
+}
+
 
 void DAG::clear() {
     clearRec(this->root);
@@ -90,39 +96,49 @@ void DAG::clearRec(DAGNode* root) {
         delete root;
 }
 
-DrawableTrapezoid* DAG::queryRec(const cg3::Point2d& q, DAGNode* node) {
+DrawableTrapezoid* DAG::queryRec(const OrderedSegment& new_segment, DAGNode* node) {
+    auto q = new_segment.getLeftmost();
+
     switch (node->getNodeType()) {
     // x-node
     case DAGNode::point: {
         // q.x < node.x => go left
         auto p_x = node->getPointStored()->x();
         if(q.x() < p_x) {
-            return queryRec(q, node->lc);
+            return queryRec(new_segment, node->lc);
         }
         // q.x > node.x => go right
         else if (q.x() > p_x) {
-            return queryRec(q, node->rc);
+            return queryRec(new_segment, node->rc);
         }
         //TODO Should I handle q.x == node.x =?
+        return queryRec(new_segment, node->rc);
         assert(false);
         break;
     }
         // y-node
     case DAGNode::segment: {
-        //Position pos = OrientationUtility::getPointPositionRespectToLine(q, *(node->getOrientedSegmentStored()));
-        if(cg3::isPointAtLeft(node->getOrientedSegmentStored()->getLeftmost(), node->getOrientedSegmentStored()->getRightmost(), q)){
-
         // q above segment => go left
-//        case above:
-            return queryRec(q, node->lc);
-        } else if(cg3::isPointAtRight(node->getOrientedSegmentStored()->getLeftmost(), node->getOrientedSegmentStored()->getRightmost(), q)) {
-
+        if(cg3::isPointAtLeft(node->getOrientedSegmentStored()->getLeftmost(), node->getOrientedSegmentStored()->getRightmost(), q)){
+            return queryRec(new_segment, node->lc);
+        }
         // q below segment => go right
-        //case below:
-            return queryRec(q, node->rc);
-        } else {
+        else if(cg3::isPointAtRight(node->getOrientedSegmentStored()->getLeftmost(), node->getOrientedSegmentStored()->getRightmost(), q)) {
+            return queryRec(new_segment, node->rc);
+        }
+        // q ON THE SEGMENT
+        else {
             //TODO Should I handle q on the segment =?
-//            default:
+            double m_old_segment = cg3::Line2(*node->getOrientedSegmentStored()).m();
+            double m_new_segment = cg3::Line2(new_segment).m();
+            // m(new_segment) > m(old_segment) => q lies above
+            if(m_new_segment > m_old_segment)
+                return queryRec(new_segment, node->lc);
+            // m(new_segment) > m(old_segment) => q lies below
+            else if (m_new_segment < m_old_segment)
+                return queryRec(new_segment, node->rc);
+
+            // same m??
             assert(false);
         }
         break;

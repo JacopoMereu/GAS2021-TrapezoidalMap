@@ -7,7 +7,7 @@ TrapezoidalMap::~TrapezoidalMap() {
     D.clear();
 
     // deletig the faces
-   for (auto iterable_face=T.begin(); iterable_face != T.end(); iterable_face++)
+    for (auto iterable_face=T.begin(); iterable_face != T.end(); iterable_face++)
         if(*iterable_face)
             delete *iterable_face;
     T.clear();
@@ -51,7 +51,7 @@ void TrapezoidalMap::initialize(const cg3::BoundingBox2& B)
 void TrapezoidalMap::addSegment(const cg3::Segment2d& segment) {
     // Find the faces in the trapezoidal map T that intersect the segment
     // sorted from left to right
-        ///TODO D.tmp();
+    ///TODO D.tmp();
     OrderedSegment* orderedSegment = new OrderedSegment(segment);
     segments.push_back(orderedSegment);
 
@@ -62,12 +62,12 @@ void TrapezoidalMap::addSegment(const cg3::Segment2d& segment) {
 }
 
 DrawableTrapezoid* TrapezoidalMap::pointLocation(const cg3::Point2d& pointToQuery) {
-    return (DrawableTrapezoid*) D.query(pointToQuery);
+    return (DrawableTrapezoid*) D.queryFaceContaininingPoint(pointToQuery);
 }
 
 void TrapezoidalMap::clear() {    
-   // Cleaning the data dynamically instantiated
-   this->~TrapezoidalMap();
+    // Cleaning the data dynamically instantiated
+    this->~TrapezoidalMap();
 
     // Re-initializing the data structures
     this->initialize(this->getBoundingBox());
@@ -95,7 +95,7 @@ void TrapezoidalMap::followSegment(OrderedSegment& s, std::vector<DrawableTrapez
     auto p = s.getLeftmost();
     auto q = s.getRightmost();
     // 2. Search with p in the search structure D to find d0.
-   DrawableTrapezoid*  currentFace = D.query(p);
+    DrawableTrapezoid*  currentFace = D.queryLeftmostFaceIntersectingSegment(s);
 
     facesIntersectingSegment.push_back(currentFace);
 
@@ -128,7 +128,7 @@ void TrapezoidalMap::followSegment(OrderedSegment& s, std::vector<DrawableTrapez
 
 //
 void TrapezoidalMap::split(OrderedSegment& s, std::vector<DrawableTrapezoid*>& intersectingFaces) {
-// it's better to pass the whole list to the function instead of a single trapezoid (because there are several scenarios to handle...)
+    // it's better to pass the whole list to the function instead of a single trapezoid (because there are several scenarios to handle...)
 
     if(intersectingFaces.size()== 1) {
         splitSingularTrapezoid(s, intersectingFaces.front());
@@ -183,147 +183,163 @@ void TrapezoidalMap::splitSingularTrapezoid(OrderedSegment& s, DrawableTrapezoid
     D.replaceNodeWithSubtree(oldFace->getPointerToDAG(), s, leftNewFace, topNewFace, bottomNewFace, rightNewFace);
 }
 void TrapezoidalMap::splitMultipleTrapezoid(OrderedSegment& s, std::vector<DrawableTrapezoid*>& intersectingFaces) {
-    DrawableTrapezoid*  firstFace, *lastFace;
+    DrawableTrapezoid*  firstFace, *lastFace, *topNewFace, *bottomNewFace;
     const size_t N_FACES = intersectingFaces.size();
-    std::vector<DrawableTrapezoid*> aboveSegmentNewFaces(N_FACES+2);
-    std::vector<DrawableTrapezoid*> belowSegmentNewFaces(N_FACES+2);
-//    // source: https://stackoverflow.com/questions/17663186/initializing-a-two-dimensional-stdvector
-//    std::vector<std::vector<DrawableTrapezoid*>> finalNewFaces(2, std::vector <DrawableTrapezoid*> (N_FACES, nullptr));
+    std::vector<DrawableTrapezoid*> aboveSegmentNewFaces(N_FACES);
+    std::vector<DrawableTrapezoid*> belowSegmentNewFaces(N_FACES);
+
+
+    bool firstFaceExists = s.getLeftmost() != intersectingFaces.front()->getLeftp();
+    bool lastFaceExists =  s.getRightmost() != intersectingFaces.back()->getRightp();
 
     /* SPLIT THE OLD FACES */
     for(size_t i = 0; i<intersectingFaces.size(); i++){
-       DrawableTrapezoid*  oldFace = intersectingFaces.at(i);
+        DrawableTrapezoid*  oldFace = intersectingFaces.at(i);
         // first face
         if(intersectingFaces.at(i)==intersectingFaces.front()){
-            /* split it into three parts: leftNewFace, topNewFace, bottomNewFace*/
-            firstFace = new DrawableTrapezoid(oldFace->getTop(), oldFace->getBottom(), oldFace->getLeftp(), s.getLeftmost());
-           DrawableTrapezoid*  topNewFace = new DrawableTrapezoid(oldFace->getTop(), s, s.getLeftmost(), oldFace->getRightp());
-           DrawableTrapezoid*  bottomNewFace = new DrawableTrapezoid(s, oldFace->getBottom(), s.getLeftmost(), oldFace->getRightp());
-
-            // Set the neighbors ONLY of the first face
-            firstFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
-            firstFace->setUpperRightNeighbor(topNewFace);
-            firstFace->setLowerRightNeighbor(bottomNewFace);
-
-            // Push the first and the top face in the "above segments" list
-            aboveSegmentNewFaces.at(i)=  firstFace;
-            belowSegmentNewFaces.at(i) = firstFace;
-
-            // Push the first and the bottom face in the "below segments" list
-            aboveSegmentNewFaces.at(i+1) = topNewFace;
-            belowSegmentNewFaces.at(i+1) = bottomNewFace;
+            /* General case:
+             *  split it into 3 parts: leftNewFace, topNewFace, bottomNewFace
+             * If the first face doesn't exist:
+             *  split it into 2 parts: topNewFace, bottomNewFace
+            */
+            topNewFace = new DrawableTrapezoid(oldFace->getTop(), s, s.getLeftmost(), oldFace->getRightp());
+            bottomNewFace = new DrawableTrapezoid(s, oldFace->getBottom(), s.getLeftmost(), oldFace->getRightp());
+            if(firstFaceExists) {
+                // Create the first face and set its 4 neighbors
+                firstFace = new DrawableTrapezoid(oldFace->getTop(), oldFace->getBottom(), oldFace->getLeftp(), s.getLeftmost());
+                firstFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
+                firstFace->setUpperRightNeighbor(topNewFace);
+                firstFace->setLowerRightNeighbor(bottomNewFace);
+            }
         }
         // last face
         else if(intersectingFaces.at(i)==intersectingFaces.back()) {
-            /* split it into three parts: topNewFace, bottomNewFace, rightNewFace*/
-            lastFace = new DrawableTrapezoid(oldFace->getTop(), oldFace->getBottom(), s.getRightmost(), oldFace->getRightp());
-           DrawableTrapezoid*  topNewFace = new DrawableTrapezoid(oldFace->getTop(), s, oldFace->getLeftp(), s.getRightmost());
-           DrawableTrapezoid*  bottomNewFace = new DrawableTrapezoid(s, oldFace->getBottom(), oldFace->getLeftp(), s.getRightmost());
+            /* General case:
+             *  split it into 3 parts: lastFace, topNewFace, bottomNewFace
+             * If the last face doesn't exist:
+             *  split it into 2 parts: topNewFace, bottomNewFace
+            */
+            topNewFace = new DrawableTrapezoid(oldFace->getTop(), s, oldFace->getLeftp(), s.getRightmost());
+            bottomNewFace = new DrawableTrapezoid(s, oldFace->getBottom(), oldFace->getLeftp(), s.getRightmost());
+            if (lastFaceExists) {
+                // Create the last face and set its 4 neighbors
+                lastFace = new DrawableTrapezoid(oldFace->getTop(), oldFace->getBottom(), s.getRightmost(), oldFace->getRightp());
 
-            // Set the neighbors
-            lastFace->setUpperLeftNeighbor(topNewFace);
-            lastFace->setLowerLeftNeighbor(bottomNewFace);
-            lastFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
-
-            // Push above
-            aboveSegmentNewFaces.at(i+1) = topNewFace;
-            belowSegmentNewFaces.at(i+1) = bottomNewFace;
-            // Push below
-            aboveSegmentNewFaces.at(i+2) = lastFace;
-            belowSegmentNewFaces.at(i+2) = lastFace;
-
-
+                lastFace->setUpperLeftNeighbor(topNewFace);
+                lastFace->setLowerLeftNeighbor(bottomNewFace);
+                lastFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
+            }
         }
         // faces 1...n-1
         else {
             /* split it into two parts: topNewFace, bottomNewFace*/
-           DrawableTrapezoid*  topNewFace = new DrawableTrapezoid(oldFace->getTop(), s, oldFace->getLeftp(), oldFace->getRightp());
-           DrawableTrapezoid*  bottomNewFace = new DrawableTrapezoid(s, oldFace->getBottom(), oldFace->getLeftp(), oldFace->getRightp());
-
-            // Push above
-            aboveSegmentNewFaces.at(i+1) = topNewFace;
-            // Push below
-            belowSegmentNewFaces.at(i+1) = bottomNewFace;
+            topNewFace = new DrawableTrapezoid(oldFace->getTop(), s, oldFace->getLeftp(), oldFace->getRightp());
+            bottomNewFace = new DrawableTrapezoid(s, oldFace->getBottom(), oldFace->getLeftp(), oldFace->getRightp());
         }
+
+        // Push top in the "list containing the faces ABOVE the segment"
+        aboveSegmentNewFaces.at(i) = topNewFace;
+        // Push top in the "list containing the faces BELOW the segment"
+        belowSegmentNewFaces.at(i) = bottomNewFace;
     }
 
     /* SET THE NEIGHBORS OF THE NEW FACES */
     /* Faces above the segment */
-    for(size_t i = 1; i < aboveSegmentNewFaces.size()-1; i++) {
+    for(size_t i = 0; i < aboveSegmentNewFaces.size(); i++) {
+        DrawableTrapezoid*  tmpTopFace = aboveSegmentNewFaces.at(i);
 
-       DrawableTrapezoid*  tmpTopFace = aboveSegmentNewFaces.at(i);
-
-        if(i==1) {
-            if(intersectingFaces.at(i-1)->getUpperRightNeighbor()!=nullptr && !intersectingFaces.at(i-1)->getUpperRightNeighbor()->isBeingSplitted) {
-                tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPRIGHT});
+        if(i==0) {
+            if(intersectingFaces.at(i)->getUpperRightNeighbor()!=nullptr && !intersectingFaces.at(i)->getUpperRightNeighbor()->isBeingSplitted) {
+                tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPRIGHT});
             }
             tmpTopFace->setLowerRightNeighbor(aboveSegmentNewFaces.at(i+1));
             tmpTopFace->setLowerLeftNeighbor(nullptr); // can be deleted
-            tmpTopFace->setUpperLeftNeighbor(aboveSegmentNewFaces.at(i-1)); // == left face
+            if(firstFaceExists)
+                tmpTopFace->setUpperLeftNeighbor(firstFace); // == left face
+            else {
+                tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPLEFT});
+            }
 
-        } else if (i==aboveSegmentNewFaces.size()-2) {
-            tmpTopFace->setUpperRightNeighbor(aboveSegmentNewFaces.at(i+1));
+        } else if (i==aboveSegmentNewFaces.size()-1) {
+            if (lastFaceExists) {
+                tmpTopFace->setUpperRightNeighbor(lastFace);
+            }
+            else {
+                tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPRIGHT});
+            }
             tmpTopFace->setLowerRightNeighbor(nullptr); // can be deleted
             tmpTopFace->setLowerLeftNeighbor(aboveSegmentNewFaces.at(i-1));
-            if(intersectingFaces.at(i-1)->getUpperLeftNeighbor()!=nullptr && !intersectingFaces.at(i-1)->getUpperLeftNeighbor()->isBeingSplitted) {
-                tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPLEFT});
+            if(intersectingFaces.at(i)->getUpperLeftNeighbor()!=nullptr && !intersectingFaces.at(i)->getUpperLeftNeighbor()->isBeingSplitted) {
+                tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPLEFT});
             }
         } else {
-            if(intersectingFaces.at(i-1)->getUpperRightNeighbor()!=nullptr && !intersectingFaces.at(i-1)->getUpperRightNeighbor()->isBeingSplitted) {
-                tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPRIGHT});
+            if(intersectingFaces.at(i)->getUpperRightNeighbor()!=nullptr && !intersectingFaces.at(i)->getUpperRightNeighbor()->isBeingSplitted) {
+                tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPRIGHT});
             }
             tmpTopFace->setLowerRightNeighbor(aboveSegmentNewFaces.at(i+1));
             tmpTopFace->setLowerLeftNeighbor(aboveSegmentNewFaces.at(i-1));
-            if(intersectingFaces.at(i-1)->getUpperLeftNeighbor()!=nullptr && !intersectingFaces.at(i-1)->getUpperLeftNeighbor()->isBeingSplitted) {
-                tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::TOPLEFT});
+            if(intersectingFaces.at(i)->getUpperLeftNeighbor()!=nullptr && !intersectingFaces.at(i)->getUpperLeftNeighbor()->isBeingSplitted) {
+                tmpTopFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::TOPLEFT});
             }
         }
     }
 
     /* Faces below the segment */
-    for(size_t i = 1; i < belowSegmentNewFaces.size()-1; i++) {
+    for(size_t i = 0; i < belowSegmentNewFaces.size(); i++) {
         DrawableTrapezoid*  tmpBottomFace = belowSegmentNewFaces.at(i);
-         if(i==1) {
-             tmpBottomFace->setUpperRightNeighbor(belowSegmentNewFaces.at(i+1));
-             if(intersectingFaces.at(i-1)->getLowerRightNeighbor()!=nullptr && !intersectingFaces.at(i-1)->getLowerRightNeighbor()->isBeingSplitted) {
-                 tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMRIGHT});
-             }
-             tmpBottomFace->setLowerLeftNeighbor(belowSegmentNewFaces.at(i-1)); // == left face
-             tmpBottomFace->setUpperLeftNeighbor(nullptr); // can be deleted
+        if(i==0) {
+            tmpBottomFace->setUpperRightNeighbor(belowSegmentNewFaces.at(i+1));
+            if(intersectingFaces.at(i)->getLowerRightNeighbor()!=nullptr && !intersectingFaces.at(i)->getLowerRightNeighbor()->isBeingSplitted) {
+                tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::BOTTOMRIGHT});
+            }
+            if(firstFaceExists)
+                tmpBottomFace->setLowerLeftNeighbor(firstFace); // == left face
+            else {
+                tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::BOTTOMLEFT});
+            }
+            tmpBottomFace->setUpperLeftNeighbor(nullptr); // can be deleted
 
-         } else if (i==belowSegmentNewFaces.size()-2) {
-             tmpBottomFace->setUpperRightNeighbor(nullptr);
-             tmpBottomFace->setLowerRightNeighbor(belowSegmentNewFaces.at(i+1));
-             if(intersectingFaces.at(i-1)->getLowerLeftNeighbor()!=nullptr && !intersectingFaces.at(i-1)->getLowerLeftNeighbor()->isBeingSplitted) {
-                 tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMLEFT});
-             }
-             tmpBottomFace->setUpperLeftNeighbor(belowSegmentNewFaces.at(i-1));
-         } else {
-             tmpBottomFace->setUpperRightNeighbor(belowSegmentNewFaces.at(i+1));
-             if(intersectingFaces.at(i-1)->getLowerRightNeighbor()!=nullptr && !intersectingFaces.at(i-1)->getLowerRightNeighbor()->isBeingSplitted) {
-                 tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMRIGHT});
-             }
-             if(intersectingFaces.at(i-1)->getLowerLeftNeighbor()!=nullptr && !intersectingFaces.at(i-1)->getLowerLeftNeighbor()->isBeingSplitted) {
-                 tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i-1), {Trapezoid::BOTTOMLEFT});
-             }
-             tmpBottomFace->setUpperLeftNeighbor(belowSegmentNewFaces.at(i-1));
-         }
+        } else if (i==belowSegmentNewFaces.size()-1) {
+            tmpBottomFace->setUpperRightNeighbor(nullptr);
+            if(lastFaceExists)
+                tmpBottomFace->setLowerRightNeighbor(lastFace); // == last face
+            else {
+                tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::BOTTOMRIGHT});
+            }
+            if(intersectingFaces.at(i)->getLowerLeftNeighbor()!=nullptr && !intersectingFaces.at(i)->getLowerLeftNeighbor()->isBeingSplitted) {
+                tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::BOTTOMLEFT});
+            }
+            tmpBottomFace->setUpperLeftNeighbor(belowSegmentNewFaces.at(i-1));
+        } else {
+            tmpBottomFace->setUpperRightNeighbor(belowSegmentNewFaces.at(i+1));
+            if(intersectingFaces.at(i)->getLowerRightNeighbor()!=nullptr && !intersectingFaces.at(i)->getLowerRightNeighbor()->isBeingSplitted) {
+                tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::BOTTOMRIGHT});
+            }
+            if(intersectingFaces.at(i)->getLowerLeftNeighbor()!=nullptr && !intersectingFaces.at(i)->getLowerLeftNeighbor()->isBeingSplitted) {
+                tmpBottomFace->replaceNeighborsFromTrapezoid(intersectingFaces.at(i), {Trapezoid::BOTTOMLEFT});
+            }
+            tmpBottomFace->setUpperLeftNeighbor(belowSegmentNewFaces.at(i-1));
+        }
     }
 
     /* MERGING (IF NEEDED) AND PUSHING THE FINAL FACE*/
+
     /* Faces above the segment */
-    this->addTrapezoidToMap(firstFace);
-    stepMerging(1, N_FACES+1, aboveSegmentNewFaces);
+    if(firstFaceExists)
+        this->addTrapezoidToMap(firstFace);
+    stepMerging(0, N_FACES, aboveSegmentNewFaces);
+
     /* Faces below the segment */
-    stepMerging(1, N_FACES+1, belowSegmentNewFaces);
-    this->addTrapezoidToMap(lastFace);
+    stepMerging(0, N_FACES, belowSegmentNewFaces);
+    if(lastFaceExists)
+        this->addTrapezoidToMap(lastFace);
 
 
     // Update the DAG
-    for(size_t i = 1; i < N_FACES+1; i++) {
-        auto tmpLeft = (i==1) ? firstFace : nullptr;
-        auto tmpRight = (i==N_FACES) ? lastFace : nullptr;
-        D.replaceNodeWithSubtree(intersectingFaces.at(i-1)->getPointerToDAG(), s, tmpLeft, aboveSegmentNewFaces.at(i), belowSegmentNewFaces.at(i), tmpRight);
+    for(size_t i = 0; i < N_FACES; i++) {
+        auto tmpLeft = (i==0 && firstFaceExists) ? firstFace : nullptr;
+        auto tmpRight = (i==N_FACES-1 && lastFaceExists) ? lastFace : nullptr;
+        D.replaceNodeWithSubtree(intersectingFaces.at(i)->getPointerToDAG(), s, tmpLeft, aboveSegmentNewFaces.at(i), belowSegmentNewFaces.at(i), tmpRight);
     }
 
     // Clean
@@ -340,7 +356,7 @@ void TrapezoidalMap::stepMerging(size_t start, size_t end, std::vector<DrawableT
         // If I found faces to merge
         if(j != i) {
             // Create the new face: it has the left point
-           DrawableTrapezoid*  mergedFace = new DrawableTrapezoid(list.at(i)->getTop(), list.at(i)->getBottom(), list.at(i)->getLeftp(), list.at(j)->getRightp());
+            DrawableTrapezoid*  mergedFace = new DrawableTrapezoid(list.at(i)->getTop(), list.at(i)->getBottom(), list.at(i)->getLeftp(), list.at(j)->getRightp());
             // Set the neighbors
             mergedFace->replaceNeighborsFromTrapezoid(list.at(i), {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
             mergedFace->replaceNeighborsFromTrapezoid(list.at(j), {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
@@ -351,7 +367,6 @@ void TrapezoidalMap::stepMerging(size_t start, size_t end, std::vector<DrawableT
                     list.at(k) = nullptr;
                 }
                 list.at(k) = mergedFace;
-                //finalNewFaces[1].at(k-1) = mergedFace;
             }
             // Jump to the face after Fj
             i = j;
