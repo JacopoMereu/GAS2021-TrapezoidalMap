@@ -12,8 +12,6 @@ DAG::DAG()
 
 void DAG::initialize(DrawableTrapezoid* B) {
     assert (root == nullptr);
-//    info infoB; infoB.t = &B;
-//    root = newNode(trapezoid, infoB);
     root = DAGNode::generateLeafNode(B);
 }
 

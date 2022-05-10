@@ -28,17 +28,18 @@ void DrawableTrapezoid::calculateGraphics() {
     setVerteces();
 }
 
-bool DrawableTrapezoid::isGraphicsCalculated() {
+bool DrawableTrapezoid::isGraphicsCalculated() const {
     return hasGraphics;
 }
 
-void DrawableTrapezoid::draw() const {
+void DrawableTrapezoid::drawPolygon() const {
+    assert(this->isGraphicsCalculated());
+
     /*source: https://www3.ntu.edu.sg/home/ehchua/programming/opengl/cg_introduction.html*/
     glBegin(GL_POLYGON);            // These vertices form a closed polygon
         if(this->isHighlighted) {
             glColor3f(1.0f, 1.0f, 1.0f);
         } else {
-            ///TODO to change
             glColor3f(this->polygonColor.redF(), this->polygonColor.greenF(), this->polygonColor.blueF());
         }
         glVertex2f(this->topLeftVertex.x(),     this->topLeftVertex.y());
@@ -46,11 +47,13 @@ void DrawableTrapezoid::draw() const {
         glVertex2f(this->bottomRightVertex.x(), this->bottomRightVertex.y());
         glVertex2f(this->bottomLeftVertex.x(),  this->bottomLeftVertex.y());
      glEnd();
-
-     cg3::opengl::drawLine2(this->topLeftVertex,  this->bottomLeftVertex, this->segmentColor, this->segmentSize);
-     cg3::opengl::drawLine2(this->topRightVertex, this->bottomRightVertex, this->segmentColor, this->segmentSize);
 }
 
+void DrawableTrapezoid::drawVerticalLines() const {
+    assert(this->isGraphicsCalculated() == true);
+    cg3::opengl::drawLine2(this->topLeftVertex,  this->bottomLeftVertex, this->segmentColor, this->segmentSize);
+    cg3::opengl::drawLine2(this->topRightVertex, this->bottomRightVertex, this->segmentColor, this->segmentSize);
+}
 //TODO Temporary
 // source: https: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
 void DrawableTrapezoid::setRandomColor() {
@@ -59,37 +62,6 @@ void DrawableTrapezoid::setRandomColor() {
     std::uniform_real_distribution<double> dis(0.0, 0.8);
 
     assert(this->polygonColor!=nullptr);
-    /*if (dis(gen)<0.2) {
-        // red
-        this->polygonColor.setRedF(1.0);
-        this->polygonColor.setGreenF(0);
-        this->polygonColor.setBlueF(0);
-    } else  if (dis(gen)<0.2) {
-        // green
-        this->polygonColor.setRedF(0);
-        this->polygonColor.setGreenF(1.0);
-        this->polygonColor.setBlueF(0);
-    } else  if (dis(gen)<0.4) {
-        // blue
-        this->polygonColor.setRedF(0);
-        this->polygonColor.setGreenF(0);
-        this->polygonColor.setBlueF(1);
-    } else  if (dis(gen)<0.6) {
-        // purple
-        this->polygonColor.setRedF(0.51);
-        this->polygonColor.setGreenF(0.51);
-        this->polygonColor.setBlueF(0);
-    } else  if (dis(gen)<0.8) {
-        // white
-        this->polygonColor.setRedF(1);
-        this->polygonColor.setGreenF(1);
-        this->polygonColor.setBlueF(1);
-    } else  {
-        // black
-        this->polygonColor.setRedF(0);
-        this->polygonColor.setGreenF(0);
-        this->polygonColor.setBlueF(0);
-    }*/
 
     this->polygonColor.setRedF(dis(gen));
     this->polygonColor.setBlueF(dis(gen));
@@ -143,6 +115,16 @@ void DrawableTrapezoid::setVerteces() {
         cg3::checkSegmentIntersection2(rightVerticalLine, getBottom(), code, thres, bottomRightVertex);
         assert(code == 'v' || code== '1');
     }
+}
+
+bool DrawableTrapezoid::getIsHighlighted() const
+{
+    return isHighlighted;
+}
+
+void DrawableTrapezoid::setIsHighlighted(bool newIsHighlighted)
+{
+    isHighlighted = newIsHighlighted;
 }
 
 double DrawableTrapezoid::getYMin()

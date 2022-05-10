@@ -1,4 +1,5 @@
 #include "drawabletrapezoidalmap.h"
+#include <cg3/viewer/opengl_objects/opengl_objects2.h>
 
 DrawableTrapezoidalMap::DrawableTrapezoidalMap()
 {
@@ -8,13 +9,12 @@ DrawableTrapezoidalMap::DrawableTrapezoidalMap()
 // Override DrawableObject
 void DrawableTrapezoidalMap::draw() const
 {
-    // For each trapezoid
     for(auto t : T) {
-        /* DRAW THE TRAPEZOID */
-        t->draw();
+        /* DRAW THE VERTICAL LINES*/
+        t->drawVerticalLines();
 
-     /* DRAW THE VERTICAL LINES*/
-
+        /* DRAW THE POLYGON */
+        t->drawPolygon(); // IT MUST BE DONE AFTER THE VERTICAL LINES
     }
 }
 
@@ -44,12 +44,12 @@ void DrawableTrapezoidalMap::highlightTrapezoid(DrawableTrapezoid *newLastTrapez
 {
     if(newLastTrapezoidHighlighted == nullptr) return;
 
-    newLastTrapezoidHighlighted->isHighlighted = true;
+    newLastTrapezoidHighlighted->setIsHighlighted(true);
     lastTrapezoidHighlighted = newLastTrapezoidHighlighted;
 }
 
 void DrawableTrapezoidalMap::resetLastTrapezoidHighlighted() {
     if(lastTrapezoidHighlighted == nullptr) return;
 
-    lastTrapezoidHighlighted->isHighlighted = false;
+    lastTrapezoidHighlighted->setIsHighlighted(false);
 }

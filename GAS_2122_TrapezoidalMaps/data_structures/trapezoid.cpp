@@ -100,7 +100,6 @@ bool Trapezoid::canMerge(const Trapezoid& t1, const Trapezoid& t2) {
     return  t1.getTop() == t2.getTop()
             && t1.getBottom() == t2.getBottom();
 }
-
 //
 void Trapezoid::swap(Trapezoid& other)
 {

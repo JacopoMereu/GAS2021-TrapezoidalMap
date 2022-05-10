@@ -27,11 +27,14 @@ private:
     //std::vector<cg3::Point2d> points;  // Contains the points
     cg3::BoundingBox2 B;
 
-
+    // Follow
     void followSegment(OrderedSegment& s, std::vector<DrawableTrapezoid*>& facesIntersectingSegment);
+    // Split
     void split(OrderedSegment& s, std::vector<DrawableTrapezoid*>& intersectingFaces);
     void splitSingularTrapezoid(OrderedSegment& s, DrawableTrapezoid* faceToSplit);
     void splitMultipleTrapezoid(OrderedSegment& s, std::vector<DrawableTrapezoid*>& intersectingFaces);
+    void stepMerging(size_t start, size_t end, std::vector<DrawableTrapezoid*>& list);
+    // Add
     void addTrapezoidToMap(DrawableTrapezoid* trapezoidToAdd);
 };
 

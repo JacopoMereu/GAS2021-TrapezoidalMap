@@ -187,8 +187,8 @@ void TrapezoidalMap::splitMultipleTrapezoid(OrderedSegment& s, std::vector<Drawa
     const size_t N_FACES = intersectingFaces.size();
     std::vector<DrawableTrapezoid*> aboveSegmentNewFaces(N_FACES+2);
     std::vector<DrawableTrapezoid*> belowSegmentNewFaces(N_FACES+2);
-    // source: https://stackoverflow.com/questions/17663186/initializing-a-two-dimensional-stdvector
-    std::vector<std::vector<DrawableTrapezoid*>> finalNewFaces(2, std::vector <DrawableTrapezoid*> (N_FACES, nullptr));
+//    // source: https://stackoverflow.com/questions/17663186/initializing-a-two-dimensional-stdvector
+//    std::vector<std::vector<DrawableTrapezoid*>> finalNewFaces(2, std::vector <DrawableTrapezoid*> (N_FACES, nullptr));
 
     /* SPLIT THE OLD FACES */
     for(size_t i = 0; i<intersectingFaces.size(); i++){
@@ -310,28 +310,48 @@ void TrapezoidalMap::splitMultipleTrapezoid(OrderedSegment& s, std::vector<Drawa
          }
     }
 
-    /* MERGING (IF NEEDED) */
+    /* MERGING (IF NEEDED) AND PUSHING THE FINAL FACE*/
     /* Faces above the segment */
     this->addTrapezoidToMap(firstFace);
+    stepMerging(1, N_FACES+1, aboveSegmentNewFaces);
+    /* Faces below the segment */
+    stepMerging(1, N_FACES+1, belowSegmentNewFaces);
+    this->addTrapezoidToMap(lastFace);
 
+
+    // Update the DAG
     for(size_t i = 1; i < N_FACES+1; i++) {
+        auto tmpLeft = (i==1) ? firstFace : nullptr;
+        auto tmpRight = (i==N_FACES) ? lastFace : nullptr;
+        D.replaceNodeWithSubtree(intersectingFaces.at(i-1)->getPointerToDAG(), s, tmpLeft, aboveSegmentNewFaces.at(i), belowSegmentNewFaces.at(i), tmpRight);
+    }
+
+    // Clean
+    aboveSegmentNewFaces.clear();
+    belowSegmentNewFaces.clear();
+}
+
+void TrapezoidalMap::stepMerging(size_t start, size_t end, std::vector<DrawableTrapezoid*>& list) {
+    for(size_t i = start; i < end; i++) {
         size_t j = i;
-        // TODO == operator of OrderedSegment should be ok since it was inherited by cg3::Segment(?)
-        while(j<N_FACES && Trapezoid::canMerge(*aboveSegmentNewFaces.at(j), *aboveSegmentNewFaces.at(j+1)))
+        while(j<end-1 && Trapezoid::canMerge(*list.at(j), *list.at(j+1)))
             j++;
 
         // If I found faces to merge
         if(j != i) {
             // Create the new face: it has the left point
-           DrawableTrapezoid*  mergedFace = new DrawableTrapezoid(aboveSegmentNewFaces.at(i)->getTop(), aboveSegmentNewFaces.at(i)->getBottom(), aboveSegmentNewFaces.at(i)->getLeftp(), aboveSegmentNewFaces.at(j)->getRightp());
+           DrawableTrapezoid*  mergedFace = new DrawableTrapezoid(list.at(i)->getTop(), list.at(i)->getBottom(), list.at(i)->getLeftp(), list.at(j)->getRightp());
             // Set the neighbors
-            mergedFace->replaceNeighborsFromTrapezoid(aboveSegmentNewFaces.at(i), {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
-            mergedFace->replaceNeighborsFromTrapezoid(aboveSegmentNewFaces.at(j), {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
+            mergedFace->replaceNeighborsFromTrapezoid(list.at(i), {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
+            mergedFace->replaceNeighborsFromTrapezoid(list.at(j), {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
 
             for(auto k=i; k<=j; k++) {
-                if(finalNewFaces[0].at(k-1))
-                    delete finalNewFaces[0].at(k-1);
-                finalNewFaces[0].at(k-1) = mergedFace;
+                if(list.at(k)) {
+                    delete list.at(k);
+                    list.at(k) = nullptr;
+                }
+                list.at(k) = mergedFace;
+                //finalNewFaces[1].at(k-1) = mergedFace;
             }
             // Jump to the face after Fj
             i = j;
@@ -340,64 +360,9 @@ void TrapezoidalMap::splitMultipleTrapezoid(OrderedSegment& s, std::vector<Drawa
         }
         // Otherwise
         else {
-            finalNewFaces[0].at(i-1) = aboveSegmentNewFaces.at(i);
-            this->addTrapezoidToMap(aboveSegmentNewFaces.at(i));
+            this->addTrapezoidToMap(list.at(i));
         }
     }
-
-    /* BELOW */
-    for(size_t i = 1; i < N_FACES+1; i++) {
-        size_t j = i;
-        while(j<N_FACES && Trapezoid::canMerge(*belowSegmentNewFaces.at(j), *belowSegmentNewFaces.at(j+1)))
-            j++;
-
-        // If I found faces to merge
-        if(j != i) {
-            // Create the new face
-           DrawableTrapezoid*  mergedFace = new DrawableTrapezoid(belowSegmentNewFaces.at(i)->getTop(), belowSegmentNewFaces.at(i)->getBottom(), belowSegmentNewFaces.at(i)->getLeftp(), belowSegmentNewFaces.at(j)->getRightp());
-            // Set the neighbors
-            mergedFace->replaceNeighborsFromTrapezoid(belowSegmentNewFaces.at(i), {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
-            mergedFace->replaceNeighborsFromTrapezoid(belowSegmentNewFaces.at(j), {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
-
-            for(auto k=i; k<=j; k++) {
-                if(finalNewFaces[1].at(k-1))
-                    delete finalNewFaces[1].at(k-1);
-                finalNewFaces[1].at(k-1) = mergedFace;
-            }
-            ///T.push_back(mergedFace);
-            this->addTrapezoidToMap(mergedFace);
-
-            // Jump to the face after Fj
-            i = j;
-        }
-        // Otherwise
-        else {
-            finalNewFaces[1].at(i-1) = belowSegmentNewFaces.at(i);
-            ///T.push_back(finalNewFaces[1].at(i-1));
-            this->addTrapezoidToMap(belowSegmentNewFaces.at(i));
-
-        }
-    }
-
-    this->addTrapezoidToMap(lastFace);
-
-
-    // Update the DAG
-    for(size_t i = 0; i < N_FACES; i++) {
-        if(i==0) {
-            D.replaceNodeWithSubtree(intersectingFaces.at(i)->getPointerToDAG(), s, firstFace, finalNewFaces[0].at(i), finalNewFaces[1].at(i), nullptr);
-        } else if (i == N_FACES-1) {
-            D.replaceNodeWithSubtree(intersectingFaces.at(i)->getPointerToDAG(), s, nullptr, finalNewFaces[0].at(i), finalNewFaces[1].at(i), lastFace);
-        } else {
-            D.replaceNodeWithSubtree(intersectingFaces.at(i)->getPointerToDAG(), s, nullptr, finalNewFaces[0].at(i), finalNewFaces[1].at(i), nullptr);
-        }
-    }
-
-    // Clean
-    // TODO To improve
-    aboveSegmentNewFaces.clear();
-    belowSegmentNewFaces.clear();
-    finalNewFaces.clear();
 }
 //
 void TrapezoidalMap::addTrapezoidToMap(DrawableTrapezoid* trapezoidToAdd) {

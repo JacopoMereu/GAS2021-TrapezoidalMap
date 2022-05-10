@@ -50,20 +50,18 @@ public:
 
     //
     static bool canMerge(const Trapezoid& t1, const Trapezoid& t2);
-    //static bool merge(const Trapezoid& t1, const Trapezoid& t2);
     //
     bool isBeingSplitted = false;
 
-private:
-
-    // TODO impossible to use references. Should I use pointers? :thinking:
-    OrderedSegment top;     // reference to the top segment
-    OrderedSegment bottom;  // reference to the bottom segment
-    cg3::Point2d leftp;      // reference to the the left point
-    cg3::Point2d rightp;     // reference to the top right point
-
+protected:
     // source: https://riptutorial.com/cplusplus/example/13085/iteration-over-an-enum
     std::array<Trapezoid*, N_NEIGHBORS> neighbors = {nullptr, nullptr, nullptr, nullptr}; // array containing the adjacent trapezoids.
+
+private:
+    OrderedSegment top;
+    OrderedSegment bottom;
+    cg3::Point2d leftp;
+    cg3::Point2d rightp;
 
     // connection with the dag
     DAGNode* nodeContainer = nullptr;
