@@ -128,6 +128,7 @@ DrawableTrapezoid* DAG::queryRec(const OrderedSegment& new_segment, DAGNode* nod
         }
         // q ON THE SEGMENT
         else {
+            //assert(false);
             //TODO Should I handle q on the segment =?
             double m_old_segment = cg3::Line2(*node->getOrientedSegmentStored()).m();
             double m_new_segment = cg3::Line2(new_segment).m();

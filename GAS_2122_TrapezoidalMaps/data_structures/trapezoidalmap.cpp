@@ -137,50 +137,150 @@ void TrapezoidalMap::split(OrderedSegment& s, std::vector<DrawableTrapezoid*>& i
     }
     /* */
     for(auto f : intersectingFaces) {
-        auto tmp = f;
-        assert(tmp->getPointerToDAG()!=nullptr);
-        T.erase(std::remove(T.begin(), T.end(), tmp), T.end());
-        if(tmp)
-            delete tmp;
+        deleteTrapezoidFromMap(f);
     }
     intersectingFaces.clear();
 }
 void TrapezoidalMap::splitSingularTrapezoid(OrderedSegment& s, DrawableTrapezoid* faceToSplit) {
     DrawableTrapezoid* oldFace = faceToSplit;
+    DrawableTrapezoid *leftNewFace, *topNewFace, *bottomNewFace, *rightNewFace;
 
-    // Creating the face
-    DrawableTrapezoid* leftNewFace = new DrawableTrapezoid(oldFace->getTop(), oldFace->getBottom(), oldFace->getLeftp(), s.getLeftmost());
-    DrawableTrapezoid* topNewFace = new DrawableTrapezoid(oldFace->getTop(), s, s.getLeftmost(), s.getRightmost());
-    DrawableTrapezoid*  bottomNewFace = new DrawableTrapezoid(s, oldFace->getBottom(), s.getLeftmost(), s.getRightmost());
-    DrawableTrapezoid* rightNewFace = new DrawableTrapezoid(oldFace->getTop(), oldFace->getBottom(), s.getRightmost(), oldFace->getRightp());
+    bool leftFaceExists  = s.getLeftmost()  != faceToSplit->getLeftp();
+    bool rightFaceExists = s.getRightmost() != faceToSplit->getRightp();
 
-    // setting adjacencies for:
-    // left
-    leftNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
-    leftNewFace->setUpperRightNeighbor(topNewFace);
-    leftNewFace->setLowerRightNeighbor(bottomNewFace);
+    ///if(leftFaceExists && rightFaceExists) {
+        // Creating the face
+        leftNewFace = leftFaceExists
+                ? new DrawableTrapezoid(oldFace->getTop(), oldFace->getBottom(), oldFace->getLeftp(), s.getLeftmost())
+                : nullptr;
+        topNewFace = new DrawableTrapezoid(oldFace->getTop(), s, s.getLeftmost(), s.getRightmost());
+        bottomNewFace = new DrawableTrapezoid(s, oldFace->getBottom(), s.getLeftmost(), s.getRightmost());
+        rightNewFace = rightFaceExists
+                ? new DrawableTrapezoid(oldFace->getTop(), oldFace->getBottom(), s.getRightmost(), oldFace->getRightp())
+                : nullptr;
 
-    // top
-    topNewFace->setUpperLeftNeighbor(leftNewFace);
-    topNewFace->setUpperRightNeighbor(rightNewFace);
+        // SETTING ADJACENCIES FOR:
+        // left
+        if(leftFaceExists) {
+            leftNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
+            leftNewFace->setUpperRightNeighbor(topNewFace);
+            leftNewFace->setLowerRightNeighbor(bottomNewFace);
+        }
 
-    // right
-    rightNewFace->setUpperLeftNeighbor(topNewFace);
-    rightNewFace->setLowerLeftNeighbor(bottomNewFace);
-    rightNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
+        // top
+        if(leftFaceExists)
+            topNewFace->setUpperLeftNeighbor(leftNewFace);
+        else
+            topNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::TOPLEFT});
 
-    // bottom
-    bottomNewFace->setLowerLeftNeighbor(leftNewFace);
-    bottomNewFace->setLowerRightNeighbor(rightNewFace);
+        if(rightFaceExists)
+            topNewFace->setUpperRightNeighbor(rightNewFace);
+        else
+            topNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::TOPRIGHT});
 
-    // Add the new faces on the trapezoidal map
-    this->addTrapezoidToMap(leftNewFace);
-    this->addTrapezoidToMap(topNewFace);
-    this->addTrapezoidToMap(bottomNewFace);
-    this->addTrapezoidToMap(rightNewFace);
+        // right
+        if(rightFaceExists) {
+            rightNewFace->setUpperLeftNeighbor(topNewFace);
+            rightNewFace->setLowerLeftNeighbor(bottomNewFace);
+            rightNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
+        }
 
-    // Upgrade the DAG
-    D.replaceNodeWithSubtree(oldFace->getPointerToDAG(), s, leftNewFace, topNewFace, bottomNewFace, rightNewFace);
+        // bottom
+        if(leftFaceExists)
+            bottomNewFace->setLowerLeftNeighbor(leftNewFace);
+        else
+            bottomNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::BOTTOMLEFT});
+
+        if(rightFaceExists)
+            bottomNewFace->setLowerRightNeighbor(rightNewFace);
+        else
+            bottomNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::BOTTOMRIGHT});
+
+
+        // Add the new faces on the trapezoidal map
+        if(leftFaceExists)
+            this->addTrapezoidToMap(leftNewFace);
+        this->addTrapezoidToMap(topNewFace);
+        this->addTrapezoidToMap(bottomNewFace);
+        if(rightFaceExists)
+            this->addTrapezoidToMap(rightNewFace);
+
+        // Upgrade the DAG
+        D.replaceNodeWithSubtree(oldFace->getPointerToDAG(), s, leftNewFace, topNewFace, bottomNewFace, rightNewFace);
+   /* }
+    else if (!leftFaceExists && !rightFaceExists) {
+        topNewFace = new DrawableTrapezoid(oldFace->getTop(), s, s.getLeftmost(), s.getRightmost());
+        bottomNewFace = new DrawableTrapezoid(s, oldFace->getBottom(), s.getLeftmost(), s.getRightmost());
+
+        // setting adjacencies for:
+        // top
+        topNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::TOPRIGHT, Trapezoid::TOPLEFT});
+
+        // bottom
+        bottomNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::BOTTOMRIGHT, Trapezoid::BOTTOMLEFT});
+
+        // Add the new faces on the trapezoidal map
+        this->addTrapezoidToMap(topNewFace);
+        this->addTrapezoidToMap(bottomNewFace);
+
+        // Upgrade the DAG
+        D.replaceNodeWithSubtree(oldFace->getPointerToDAG(), s, nullptr, topNewFace, bottomNewFace, nullptr);
+    }
+    else if (!leftFaceExists) {
+        topNewFace = new DrawableTrapezoid(oldFace->getTop(), s, s.getLeftmost(), s.getRightmost());
+        bottomNewFace = new DrawableTrapezoid(s, oldFace->getBottom(), s.getLeftmost(), s.getRightmost());
+        rightNewFace = new DrawableTrapezoid(oldFace->getTop(), oldFace->getBottom(), s.getRightmost(), oldFace->getRightp());
+
+        // setting adjacencies for:
+
+        // top
+        topNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::TOPLEFT});
+        topNewFace->setUpperRightNeighbor(rightNewFace);
+
+        // bottom
+        bottomNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::BOTTOMLEFT});
+        bottomNewFace->setLowerRightNeighbor(rightNewFace);
+
+        // right
+        rightNewFace->setUpperLeftNeighbor(topNewFace);
+        rightNewFace->setLowerLeftNeighbor(bottomNewFace);
+        rightNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::TOPRIGHT, Trapezoid::BOTTOMRIGHT});
+
+        // Add the new faces on the trapezoidal map
+        this->addTrapezoidToMap(topNewFace);
+        this->addTrapezoidToMap(bottomNewFace);
+        this->addTrapezoidToMap(rightNewFace);
+
+        // Upgrade the DAG
+        D.replaceNodeWithSubtree(oldFace->getPointerToDAG(), s, nullptr, topNewFace, bottomNewFace, rightNewFace);
+    }
+    else if (!rightFaceExists) {
+        leftNewFace = new DrawableTrapezoid(oldFace->getTop(), oldFace->getBottom(), oldFace->getLeftp(), s.getLeftmost());
+        topNewFace = new DrawableTrapezoid(oldFace->getTop(), s, s.getLeftmost(), s.getRightmost());
+        bottomNewFace = new DrawableTrapezoid(s, oldFace->getBottom(), s.getLeftmost(), s.getRightmost());
+
+        // setting adjacencies for:
+        // left
+        leftNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::TOPLEFT, Trapezoid::BOTTOMLEFT});
+        leftNewFace->setUpperRightNeighbor(topNewFace);
+        leftNewFace->setLowerRightNeighbor(bottomNewFace);
+
+        // bottom
+        bottomNewFace->setLowerLeftNeighbor(leftNewFace);
+        bottomNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::BOTTOMRIGHT});
+
+        // top
+        topNewFace->setUpperLeftNeighbor(leftNewFace);
+        topNewFace->replaceNeighborsFromTrapezoid(oldFace, {Trapezoid::TOPRIGHT});
+
+        // Add the new faces on the trapezoidal map
+        this->addTrapezoidToMap(leftNewFace);
+        this->addTrapezoidToMap(topNewFace);
+        this->addTrapezoidToMap(bottomNewFace);
+
+        // Upgrade the DAG
+        D.replaceNodeWithSubtree(oldFace->getPointerToDAG(), s, leftNewFace, topNewFace, bottomNewFace, nullptr);
+    }*/
 }
 void TrapezoidalMap::splitMultipleTrapezoid(OrderedSegment& s, std::vector<DrawableTrapezoid*>& intersectingFaces) {
     DrawableTrapezoid*  firstFace, *lastFace, *topNewFace, *bottomNewFace;
@@ -381,12 +481,28 @@ void TrapezoidalMap::stepMerging(size_t start, size_t end, std::vector<DrawableT
 }
 //
 void TrapezoidalMap::addTrapezoidToMap(DrawableTrapezoid* trapezoidToAdd) {
+    auto old_size = T.size();
     assert(trapezoidToAdd != nullptr);
 
     if(!trapezoidToAdd->isGraphicsCalculated())
         trapezoidToAdd->calculateGraphics();
 
     assert(trapezoidToAdd->isGraphicsCalculated());
+
     T.push_back(trapezoidToAdd);
+    assert(old_size+1 == T.size());
+}
+
+void TrapezoidalMap::deleteTrapezoidFromMap(DrawableTrapezoid* trapezoidToDelete) {
+    auto old_size = T.size();
+    assert(trapezoidToDelete != nullptr);
+
+    assert(trapezoidToDelete->getPointerToDAG()!=nullptr);
+    T.erase(std::remove(T.begin(), T.end(), trapezoidToDelete), T.end());
+    if(trapezoidToDelete)
+        delete trapezoidToDelete;
+
+
+    assert(old_size-1 == T.size());
 }
 // ----------------------- END PRIVATE SECTION -----------------------

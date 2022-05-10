@@ -36,6 +36,7 @@ private:
     void stepMerging(size_t start, size_t end, std::vector<DrawableTrapezoid*>& list);
     // Add
     void addTrapezoidToMap(DrawableTrapezoid* trapezoidToAdd);
+    void deleteTrapezoidFromMap(DrawableTrapezoid* trapezoidToDelete);
 };
 
 #endif // TRAPEZOIDALMAP_H

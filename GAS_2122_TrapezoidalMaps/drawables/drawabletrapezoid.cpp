@@ -81,12 +81,17 @@ void DrawableTrapezoid::setVerteces() {
                     cg3::Point2d(getRightp().x(), DrawableTrapezoid::getYMin())
                     );
 
-
-    if(getLeftp() == getBottom().getLeftmost()) {
+    bool leftpOnTop = getLeftp() == getTop().getLeftmost();
+    bool leftpOnBottom= getLeftp() == getBottom().getLeftmost();
+    if(leftpOnBottom && leftpOnTop) {
+        this->topLeftVertex = getLeftp();
+        this->bottomLeftVertex = getLeftp();
+    }
+    else if(leftpOnBottom) {
         this->bottomLeftVertex = getLeftp();
         cg3::checkSegmentIntersection2(leftVerticalLine,  getTop(), code, thres, topLeftVertex);
     }
-    else if (getLeftp() == getTop().getLeftmost()) {
+    else if (leftpOnTop) {
         this->topLeftVertex = getLeftp();
         cg3::checkSegmentIntersection2(leftVerticalLine,  getBottom(), code, thres, bottomLeftVertex);
         assert(code == 'v' || code == '1');
@@ -98,12 +103,17 @@ void DrawableTrapezoid::setVerteces() {
     }
 
     //
-
-    if(getRightp() == getBottom().getRightmost()) {
+    bool rightpOnTop = getRightp() == getTop().getRightmost();
+    bool rightpOnBottom= getRightp() == getBottom().getRightmost();
+    if(rightpOnBottom && rightpOnTop) {
+        this->bottomRightVertex = getRightp();
+        this->topRightVertex = getRightp();
+    }
+    else if(rightpOnBottom) {
         this->bottomRightVertex = getRightp();
         cg3::checkSegmentIntersection2(rightVerticalLine,  getTop(), code, thres, topRightVertex);
     }
-    else if (getRightp() == getTop().getRightmost()) {
+    else if (rightpOnTop) {
         this->topRightVertex = getRightp();
         cg3::checkSegmentIntersection2(rightVerticalLine,  getBottom(), code, thres, bottomRightVertex);
         assert(code == 'v' || code == '1');
