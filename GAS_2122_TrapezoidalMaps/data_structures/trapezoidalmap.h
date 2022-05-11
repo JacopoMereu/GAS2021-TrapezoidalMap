@@ -15,6 +15,7 @@ public:
     virtual void initialize(const cg3::BoundingBox2& B);
     void addSegment(const cg3::Segment2d& segment);
     DrawableTrapezoid* pointLocation(const cg3::Point2d& pointToQuery);
+    void reset();
     void clear();
     std::vector<OrderedSegment*> segments;    // Contains the segments
 

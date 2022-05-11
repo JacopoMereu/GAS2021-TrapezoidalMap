@@ -9,18 +9,24 @@ class DAG
 {
 public:
     DAG();
-    void initialize( DrawableTrapezoid* B); // Necessary because the DAG constructor is implicited called at the beginning of the TrapezoidalMap...
+    ~DAG();
+
+    void initialize(DrawableTrapezoid* B);
     void replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segmentSplitting,
                                 DrawableTrapezoid* left=nullptr, DrawableTrapezoid* top=nullptr, DrawableTrapezoid* bottom=nullptr, DrawableTrapezoid* right=nullptr);
     DrawableTrapezoid* queryFaceContaininingPoint(const cg3::Point2d& q);
     DrawableTrapezoid* queryLeftmostFaceIntersectingSegment(const OrderedSegment& s);
-    void clear();
+
 
 private:
     // root
     DAGNode* root = nullptr;
+    std::vector<DAGNode*> uniquePointers;
+    DAGNode* generateNode(const cg3::Point2d* pointToStore);
+    DAGNode* generateNode(const OrderedSegment* segmentToStore);
+    DAGNode* generateNode(DrawableTrapezoid* trapezoidToStore);
+
     DrawableTrapezoid* queryRec(const OrderedSegment& new_segment, DAGNode* root);
-    void clearRec(DAGNode* root);
 };
 
 

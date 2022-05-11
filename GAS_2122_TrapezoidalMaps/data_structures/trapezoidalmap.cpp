@@ -4,7 +4,7 @@
 // ----------------------- PUBLIC SECTION -----------------------
 TrapezoidalMap::~TrapezoidalMap() {
     // deleting the dag
-    D.clear();
+    D.~DAG();
 
     // deletig the faces
     for (auto iterable_face=T.begin(); iterable_face != T.end(); iterable_face++)
@@ -51,7 +51,6 @@ void TrapezoidalMap::initialize(const cg3::BoundingBox2& B)
 void TrapezoidalMap::addSegment(const cg3::Segment2d& segment) {
     // Find the faces in the trapezoidal map T that intersect the segment
     // sorted from left to right
-    ///TODO D.tmp();
     OrderedSegment* orderedSegment = new OrderedSegment(segment);
     segments.push_back(orderedSegment);
 
@@ -65,13 +64,16 @@ DrawableTrapezoid* TrapezoidalMap::pointLocation(const cg3::Point2d& pointToQuer
     return (DrawableTrapezoid*) D.queryFaceContaininingPoint(pointToQuery);
 }
 
-void TrapezoidalMap::clear() {    
-    // Cleaning the data dynamically instantiated
-    this->~TrapezoidalMap();
+void TrapezoidalMap::reset() {
+    this->clear();
 
     // Re-initializing the data structures
     this->initialize(this->getBoundingBox());
+}
 
+void TrapezoidalMap::clear() {
+    // Cleaning the data dynamically instantiated
+    this->~TrapezoidalMap();
 }
 // ----------------------- END PUBLIC SECTION -----------------------
 
@@ -283,7 +285,7 @@ void TrapezoidalMap::splitSingularTrapezoid(OrderedSegment& s, DrawableTrapezoid
     }*/
 }
 void TrapezoidalMap::splitMultipleTrapezoid(OrderedSegment& s, std::vector<DrawableTrapezoid*>& intersectingFaces) {
-    DrawableTrapezoid*  firstFace, *lastFace, *topNewFace, *bottomNewFace;
+    DrawableTrapezoid *firstFace = nullptr, *lastFace = nullptr, *topNewFace, *bottomNewFace;
     const size_t N_FACES = intersectingFaces.size();
     std::vector<DrawableTrapezoid*> aboveSegmentNewFaces(N_FACES);
     std::vector<DrawableTrapezoid*> belowSegmentNewFaces(N_FACES);
@@ -481,7 +483,6 @@ void TrapezoidalMap::stepMerging(size_t start, size_t end, std::vector<DrawableT
 }
 //
 void TrapezoidalMap::addTrapezoidToMap(DrawableTrapezoid* trapezoidToAdd) {
-    auto old_size = T.size();
     assert(trapezoidToAdd != nullptr);
 
     if(!trapezoidToAdd->isGraphicsCalculated())
@@ -490,11 +491,9 @@ void TrapezoidalMap::addTrapezoidToMap(DrawableTrapezoid* trapezoidToAdd) {
     assert(trapezoidToAdd->isGraphicsCalculated());
 
     T.push_back(trapezoidToAdd);
-    assert(old_size+1 == T.size());
 }
 
 void TrapezoidalMap::deleteTrapezoidFromMap(DrawableTrapezoid* trapezoidToDelete) {
-    auto old_size = T.size();
     assert(trapezoidToDelete != nullptr);
 
     assert(trapezoidToDelete->getPointerToDAG()!=nullptr);
@@ -502,7 +501,5 @@ void TrapezoidalMap::deleteTrapezoidFromMap(DrawableTrapezoid* trapezoidToDelete
     if(trapezoidToDelete)
         delete trapezoidToDelete;
 
-
-    assert(old_size-1 == T.size());
 }
 // ----------------------- END PRIVATE SECTION -----------------------

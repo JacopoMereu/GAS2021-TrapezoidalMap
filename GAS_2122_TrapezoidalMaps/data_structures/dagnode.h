@@ -27,8 +27,8 @@ public:
     void setNodeAsLeafNode(Trapezoid& t);*/
 
     static DAGNode* generateXNode(const cg3::Point2d* p);
-    static DAGNode* generateYNode(OrderedSegment* s);
-    static DAGNode* generateLeafNode(DrawableTrapezoid* t);
+    static DAGNode* generateYNode(const OrderedSegment* s);
+    static DAGNode* generateLeafNode(DrawableTrapezoid* t, bool& leafAlreadyPresent);
     // Creates a new generic node
     static DAGNode* newNode(nodeType type, info info);
 

@@ -12,7 +12,9 @@ DAG::DAG()
 
 void DAG::initialize(DrawableTrapezoid* B) {
     assert (root == nullptr);
-    root = DAGNode::generateLeafNode(B);
+    assert(B->getPointerToDAG() == nullptr);
+
+    root = generateNode(B);
 }
 
 
@@ -22,40 +24,34 @@ void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segment
     assert(nodeToReplace->rc == nullptr);
     assert(nodeToReplace->isLeaf());
 
-    //TODO a better way to pass the new faces
     // Creating the segment subtree (it's always created in every case)
-    auto segmentNode = DAGNode::generateYNode(&segmentSplitting);
-    segmentNode->lc = DAGNode::generateLeafNode(top);
-    segmentNode->rc = DAGNode::generateLeafNode(bottom);
+    auto segmentNode = generateNode(&segmentSplitting);
+    segmentNode->lc = generateNode(top);
+    segmentNode->rc = generateNode(bottom);
 
-    /* COMPLEX CASE: the whole segment is inside a face */
+    /* SIMPLE CASE: the whole segment is inside a face */
     if(left != nullptr && right != nullptr) {
-        //newRoot = DAGNode::generateXNode();
-        nodeToReplace->lc = DAGNode::generateLeafNode(left);
-        nodeToReplace->rc = DAGNode::generateXNode(&segmentSplitting.getRightmost());
+        nodeToReplace->lc = generateNode(left);
+        nodeToReplace->rc = generateNode(&segmentSplitting.getRightmost());
         nodeToReplace->rc->lc = segmentNode;
-        nodeToReplace->rc->rc = DAGNode::generateLeafNode(right);
-        // replace the old node with the new node
+        nodeToReplace->rc->rc = generateNode(right);
         nodeToReplace->convertToXNode(&segmentSplitting.getLeftmost());
     }
     /* COMPLEX CASE: several faces intersected by the segment */
     // If it's the first face
     else if (left != nullptr) {
-        //newRoot = DAGNode::generateXNode(&segmentSplitting.getLeftmost());
-        nodeToReplace->lc = DAGNode::generateLeafNode(left);
+        nodeToReplace->lc = generateNode(left);
         nodeToReplace->rc = segmentNode;
         nodeToReplace->convertToXNode(&segmentSplitting.getLeftmost());
     }
     // If it's the last (k-th) face
     else if (right != nullptr) {
-        //newRoot = DAGNode::generateXNode(&segmentSplitting.getRightmost());
         nodeToReplace->lc = segmentNode;
-        nodeToReplace->rc = DAGNode::generateLeafNode(right);
+        nodeToReplace->rc = generateNode(right);
         nodeToReplace->convertToXNode(&segmentSplitting.getRightmost());
     }
     // Else it's a i-th face with i in [2, k-1]
     else {
-        //newRoot = segmentNode;
         nodeToReplace->lc = segmentNode->lc;
         nodeToReplace->rc = segmentNode->rc;
         nodeToReplace->convertToYNode(&segmentSplitting);
@@ -67,7 +63,6 @@ void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segment
         assert(right->getPointerToDAG()!=nullptr);
     assert(top->getPointerToDAG()!=nullptr);
     assert(bottom->getPointerToDAG()!=nullptr);
-    //delete newRoot;
 }
 
 
@@ -81,19 +76,32 @@ DrawableTrapezoid* DAG::queryLeftmostFaceIntersectingSegment(const OrderedSegmen
 }
 
 
-void DAG::clear() {
-    clearRec(this->root);
+DAG::~DAG() {
+    for (auto iterable_dagnode=uniquePointers.begin(); iterable_dagnode != uniquePointers.end(); iterable_dagnode++)
+        if(*iterable_dagnode)
+            delete *iterable_dagnode;
+    uniquePointers.clear();
+    uniquePointers.shrink_to_fit();
     this->root=nullptr;
 }
 // PRIVATE SECTION
-void DAG::clearRec(DAGNode* root) {
-    if(root == nullptr) return;
+DAGNode* DAG::generateNode(const cg3::Point2d* pointToStore) {
+    auto pointNode = DAGNode::generateXNode(pointToStore);
+    uniquePointers.push_back(pointNode);
+    return pointNode;
+}
 
-    delete root->lc;
-    delete root->rc;
-
-    if(root)
-        delete root;
+DAGNode* DAG::generateNode(const OrderedSegment* segmentToStore) {
+    auto segmentNode = DAGNode::generateYNode(segmentToStore);
+    uniquePointers.push_back(segmentNode);
+    return segmentNode;
+}
+DAGNode* DAG::generateNode(DrawableTrapezoid* trapezoidToStore) {
+    bool alreadyPresent;
+    auto trapezoidNode = DAGNode::generateLeafNode(trapezoidToStore, alreadyPresent);
+        if(!alreadyPresent)
+            uniquePointers.push_back(trapezoidNode);
+    return trapezoidNode;
 }
 
 DrawableTrapezoid* DAG::queryRec(const OrderedSegment& new_segment, DAGNode* node) {

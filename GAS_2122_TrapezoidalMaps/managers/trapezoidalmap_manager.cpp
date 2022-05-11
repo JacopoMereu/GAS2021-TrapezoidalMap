@@ -136,7 +136,7 @@ TrapezoidalMapManager::~TrapezoidalMapManager()
     //
     //Try to AVOID using dynamic objects whenever it is possible (it will
     //be evaluated!)
-    /// I've nothing to write here
+    drawableTrapezoidalMap.clear();
     //#####################################################################
 
 
@@ -258,7 +258,7 @@ void TrapezoidalMapManager::clearTrapezoidalMap()
 {
     //---------------------------------------------------------------------
     //Clear here your trapezoidal map data structure.
-    drawableTrapezoidalMap.clear();
+    drawableTrapezoidalMap.reset();
     //#####################################################################
 }
 

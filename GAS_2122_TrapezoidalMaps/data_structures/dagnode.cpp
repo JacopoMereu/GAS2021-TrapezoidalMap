@@ -28,18 +28,21 @@ DAGNode* DAGNode::generateXNode(const cg3::Point2d* p) {
     return DAGNode::newNode(point, info);
 }
 
-DAGNode* DAGNode::generateYNode(OrderedSegment* s) {
+DAGNode* DAGNode::generateYNode(const OrderedSegment* s) {
     DAGNode::info info;
     info.s = s;
     return DAGNode::newNode(segment, info);
 }
 
-DAGNode* DAGNode::generateLeafNode(DrawableTrapezoid* t) {
+DAGNode* DAGNode::generateLeafNode(DrawableTrapezoid* t,  bool& leafAlreadyPresent) {
     // If it exists already a node containing the trapezoid, return that node
-    if (t->getPointerToDAG() != nullptr)
+    if (t->getPointerToDAG() != nullptr) {
+        leafAlreadyPresent = true;
         return t->getPointerToDAG();
+    }
 
     // otherwise create a new node
+    leafAlreadyPresent = false;
     DAGNode::info info;
     info.t = t;
     return DAGNode::newNode(trapezoid, info);

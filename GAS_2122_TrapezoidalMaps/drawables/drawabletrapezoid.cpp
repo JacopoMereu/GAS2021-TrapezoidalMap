@@ -54,9 +54,10 @@ void DrawableTrapezoid::drawVerticalLines() const {
     cg3::opengl::drawLine2(this->topLeftVertex,  this->bottomLeftVertex, this->segmentColor, this->segmentSize);
     cg3::opengl::drawLine2(this->topRightVertex, this->bottomRightVertex, this->segmentColor, this->segmentSize);
 }
-//TODO Temporary
-// source: https: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
+
+
 void DrawableTrapezoid::setRandomColor() {
+    // source: https: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
     std::random_device rd;  // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
     std::uniform_real_distribution<double> dis(0.0, 0.8);
