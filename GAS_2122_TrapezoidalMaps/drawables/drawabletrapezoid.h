@@ -37,10 +37,19 @@ private:
     // 4 verteces of the trapezoid
     cg3::Point2d topLeftVertex, topRightVertex, bottomLeftVertex, bottomRightVertex;
 
-    // Colors and size for drawing
-    cg3::Color polygonColor = cg3::Color(0.0, 0.0, 0.0);
-    cg3::Color segmentColor = cg3::Color(80.0, 80.0, 180.0);
-    int segmentSize = 3;
+    // COLORS
+    const double min_random_value = 0.0;
+    const double max_random_value = 0.8;
+    // polygon highlighted color (equal for all trapezoids)
+    const cg3::Color POLYGON_COLOR_WHEN_HIGHLIGHTED = cg3::Color(255,255,255);
+    // polygon default color
+    cg3::Color polygonColor = cg3::Color(0, 0, 0);
+    // vertical lines
+    cg3::Color segmentColor = cg3::Color(80, 80, 180); // value seen in drawableboundingbox, but it has not getter, so I set this field "manually"
+    // WIDTH
+    int segmentSize = 3; // value seen in drawableboundingbox, but it has not getter, so I set this field "manually"
+
+
 };
 
 #endif // DRAWABLETRAPEZOID_H

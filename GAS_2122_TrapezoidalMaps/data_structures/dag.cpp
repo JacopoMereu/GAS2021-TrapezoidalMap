@@ -10,7 +10,7 @@ DAG::DAG()
     assert (this->root == nullptr);
 }
 
-void DAG::initialize(DrawableTrapezoid* B) {
+void DAG::initialize(DrawableTrapezoid* const B) {
     assert (root == nullptr);
     assert(B->getPointerToDAG() == nullptr);
 
@@ -18,7 +18,7 @@ void DAG::initialize(DrawableTrapezoid* B) {
 }
 
 
-void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segmentSplitting, DrawableTrapezoid* left, DrawableTrapezoid* top, DrawableTrapezoid* bottom, DrawableTrapezoid* right) {
+void DAG::replaceNodeWithSubtree(DAGNode* const nodeToReplace, const OrderedSegment& segmentSplitting, DrawableTrapezoid* const left, DrawableTrapezoid* const top, DrawableTrapezoid* const bottom, DrawableTrapezoid* const right) {
     // Double check if the node is a leaf
     assert(nodeToReplace->lc == nullptr);
     assert(nodeToReplace->rc == nullptr);
@@ -66,12 +66,12 @@ void DAG::replaceNodeWithSubtree(DAGNode* nodeToReplace, OrderedSegment& segment
 }
 
 
-DrawableTrapezoid* DAG::queryFaceContaininingPoint(const cg3::Point2d& q) {
+DrawableTrapezoid* DAG::queryFaceContaininingPoint(const cg3::Point2d& q) const {
     OrderedSegment s = OrderedSegment(q,q);
     return queryRec(s, this->root);
 }
 
-DrawableTrapezoid* DAG::queryLeftmostFaceIntersectingSegment(const OrderedSegment& s) {
+DrawableTrapezoid* DAG::queryLeftmostFaceIntersectingSegment(const OrderedSegment& s) const {
     return queryRec(s, this->root);
 }
 
@@ -85,18 +85,18 @@ DAG::~DAG() {
     this->root=nullptr;
 }
 // PRIVATE SECTION
-DAGNode* DAG::generateNode(const cg3::Point2d* pointToStore) {
+DAGNode* DAG::generateNode(const cg3::Point2d* const pointToStore) {
     auto pointNode = DAGNode::generateXNode(pointToStore);
     uniquePointers.push_back(pointNode);
     return pointNode;
 }
 
-DAGNode* DAG::generateNode(const OrderedSegment* segmentToStore) {
+DAGNode* DAG::generateNode(const OrderedSegment* const segmentToStore) {
     auto segmentNode = DAGNode::generateYNode(segmentToStore);
     uniquePointers.push_back(segmentNode);
     return segmentNode;
 }
-DAGNode* DAG::generateNode(DrawableTrapezoid* trapezoidToStore) {
+DAGNode* DAG::generateNode(DrawableTrapezoid* const trapezoidToStore) {
     bool alreadyPresent;
     auto trapezoidNode = DAGNode::generateLeafNode(trapezoidToStore, alreadyPresent);
         if(!alreadyPresent)
@@ -104,7 +104,7 @@ DAGNode* DAG::generateNode(DrawableTrapezoid* trapezoidToStore) {
     return trapezoidNode;
 }
 
-DrawableTrapezoid* DAG::queryRec(const OrderedSegment& new_segment, DAGNode* node) {
+DrawableTrapezoid* DAG::queryRec(const OrderedSegment& new_segment, DAGNode* const node) const {
     auto q = new_segment.getLeftmost();
 
     switch (node->getNodeType()) {

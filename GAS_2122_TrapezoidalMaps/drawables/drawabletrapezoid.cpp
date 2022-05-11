@@ -38,7 +38,7 @@ void DrawableTrapezoid::drawPolygon() const {
     /*source: https://www3.ntu.edu.sg/home/ehchua/programming/opengl/cg_introduction.html*/
     glBegin(GL_POLYGON);            // These vertices form a closed polygon
         if(this->isHighlighted) {
-            glColor3f(1.0f, 1.0f, 1.0f);
+            glColor3f(POLYGON_COLOR_WHEN_HIGHLIGHTED.redF(), POLYGON_COLOR_WHEN_HIGHLIGHTED.greenF(), POLYGON_COLOR_WHEN_HIGHLIGHTED.blueF());
         } else {
             glColor3f(this->polygonColor.redF(), this->polygonColor.greenF(), this->polygonColor.blueF());
         }
@@ -60,7 +60,7 @@ void DrawableTrapezoid::setRandomColor() {
     // source: https: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
     std::random_device rd;  // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-    std::uniform_real_distribution<double> dis(0.0, 0.8);
+    std::uniform_real_distribution<double> dis(min_random_value, max_random_value);
 
     assert(this->polygonColor!=nullptr);
 

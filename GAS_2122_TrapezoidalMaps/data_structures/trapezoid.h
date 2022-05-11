@@ -11,9 +11,6 @@ class Trapezoid
 {
 public:
     //
-    void swap(Trapezoid& other);
-    Trapezoid& operator = (Trapezoid other); //note the pass-by-value
-
     // A trapezoid built using general position segments has at most 4 neighbors
     static const size_t N_NEIGHBORS = 4;
     enum neighborsCode {TOPLEFT, TOPRIGHT, BOTTOMLEFT, BOTTOMRIGHT};
@@ -31,18 +28,18 @@ public:
     void setRightp(const cg3::Point2d &newRightp);
 
     // setter/getter of the trapezoidal neighbors
-    void setUpperLeftNeighbor(Trapezoid* newNeighbor);
-    void setUpperRightNeighbor(Trapezoid* newNeighbor);
-    void setLowerLeftNeighbor(Trapezoid* newNeighbor);
-    void setLowerRightNeighbor(Trapezoid* newNeighbor);
-    void replaceNeighborsFromTrapezoid(Trapezoid* trapezoidToReplace, std::vector<neighborsCode> neighborsToReplace);
+    void setUpperLeftNeighbor(Trapezoid* const newNeighbor);
+    void setUpperRightNeighbor(Trapezoid* const newNeighbor);
+    void setLowerLeftNeighbor(Trapezoid* const newNeighbor);
+    void setLowerRightNeighbor(Trapezoid* const newNeighbor);
+    void replaceNeighborsFromTrapezoid(Trapezoid* const trapezoidToReplace, std::vector<neighborsCode> neighborsToReplace);
     Trapezoid* getUpperLeftNeighbor()  const ;
     Trapezoid* getUpperRightNeighbor() const ;
     Trapezoid* getLowerLeftNeighbor()  const ;
     Trapezoid* getLowerRightNeighbor() const ;
 
     // find and replace the old neighbor with the new one
-    bool replaceNeighbor(Trapezoid* oldNeighbor, Trapezoid* newNeighbor);
+    bool replaceNeighbor(Trapezoid* const oldNeighbor, Trapezoid* const newNeighbor);
 
     // setter/getter the leaf of the dag
     void setPointerToDAG(DAGNode* node);
@@ -51,7 +48,9 @@ public:
     //
     static bool canMerge(const Trapezoid& t1, const Trapezoid& t2);
     //
-    bool isBeingSplitted = false;
+
+    bool getIsBeingSplitted() const;
+    void setIsBeingSplitted(const bool newIsBeingSplitted);
 
 protected:
     // source: https://riptutorial.com/cplusplus/example/13085/iteration-over-an-enum
@@ -66,11 +65,7 @@ private:
     // connection with the dag
     DAGNode* nodeContainer = nullptr;
 
-    void setRandomColor();
-
+    bool isBeingSplitted = false;
 };
-
-
-//extern struct DAG::Node dagNode;
 
 #endif // TRAPEZOID_H

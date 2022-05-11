@@ -42,16 +42,16 @@ void Trapezoid::setRightp(const cg3::Point2d &newRightp)
 
 
 // setter/getter of the trapezoidal neighbors
-void Trapezoid::setUpperLeftNeighbor(Trapezoid* newNeighbor) {
+void Trapezoid::setUpperLeftNeighbor(Trapezoid* const newNeighbor) {
     neighbors[TOPLEFT] = newNeighbor;      
 }
-void Trapezoid::setUpperRightNeighbor(Trapezoid* newNeighbor) {
+void Trapezoid::setUpperRightNeighbor(Trapezoid* const newNeighbor) {
     neighbors[TOPRIGHT] = newNeighbor;
 }
-void Trapezoid::setLowerLeftNeighbor(Trapezoid* newNeighbor) {
+void Trapezoid::setLowerLeftNeighbor(Trapezoid* const newNeighbor) {
     neighbors[BOTTOMLEFT] = newNeighbor;
 }
-void Trapezoid::setLowerRightNeighbor(Trapezoid* newNeighbor) {
+void Trapezoid::setLowerRightNeighbor(Trapezoid* const newNeighbor) {
     neighbors[BOTTOMRIGHT] = newNeighbor;
 }
 Trapezoid* Trapezoid::getUpperLeftNeighbor() const {
@@ -67,7 +67,7 @@ Trapezoid* Trapezoid::getLowerRightNeighbor() const {
     return neighbors[BOTTOMRIGHT];
 }
 // Replace neighbors
-void Trapezoid::replaceNeighborsFromTrapezoid(Trapezoid* trapezoidToReplace, std::vector<neighborsCode> neighborsToReplace) {
+void Trapezoid::replaceNeighborsFromTrapezoid(Trapezoid* const trapezoidToReplace, std::vector<neighborsCode> neighborsToReplace) {
     for(auto code : neighborsToReplace) {
         this->neighbors[code] = trapezoidToReplace->neighbors[code];
         if(trapezoidToReplace->neighbors[code] != nullptr) {
@@ -75,7 +75,7 @@ void Trapezoid::replaceNeighborsFromTrapezoid(Trapezoid* trapezoidToReplace, std
         }
     }
 }
-bool Trapezoid::replaceNeighbor(Trapezoid* oldNeighbor, Trapezoid* newNeighbor) {
+bool Trapezoid::replaceNeighbor(Trapezoid* const oldNeighbor, Trapezoid* const newNeighbor) {
     bool hasReplaced = false;
     //TODO da ottimizare il senso di ricerca
     for (neighborsCode i = TOPLEFT; i <= BOTTOMRIGHT; i = neighborsCode(i + 1))
@@ -100,19 +100,14 @@ bool Trapezoid::canMerge(const Trapezoid& t1, const Trapezoid& t2) {
     return  t1.getTop() == t2.getTop()
             && t1.getBottom() == t2.getBottom();
 }
-//
-void Trapezoid::swap(Trapezoid& other)
-{
-//    using std::swap; //good practice
-    std::swap(top, other.top); //and all the other members
-    std::swap(bottom, other.bottom); //and all the other members
-    std::swap(leftp, other.leftp); //and all the other members
-    std::swap(rightp, other.rightp); //and all the other members
 
-}
-Trapezoid& Trapezoid::operator = (Trapezoid other)
+bool Trapezoid::getIsBeingSplitted() const
 {
-    this->swap(other);
-    return *this;
+    return isBeingSplitted;
+}
+
+void Trapezoid::setIsBeingSplitted(const bool newIsBeingSplitted)
+{
+    isBeingSplitted = newIsBeingSplitted;
 }
 

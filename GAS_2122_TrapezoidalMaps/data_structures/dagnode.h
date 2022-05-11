@@ -11,8 +11,6 @@
 class DAGNode
 {
 public:
-    //DAGNode(cg3::Point2* p);
-    //~DAGNode();
     enum nodeType {point, segment, trapezoid};
 
     // Content of a node
@@ -22,26 +20,26 @@ public:
         DrawableTrapezoid* t;
     };
 
-    /*void setNodeAsXNode(cg3::Point2d& t);
-    void setNodeAsYNode(OrderedSegment& t);
-    void setNodeAsLeafNode(Trapezoid& t);*/
-
+    // STATIC NODE GENERATORS
     static DAGNode* generateXNode(const cg3::Point2d* p);
     static DAGNode* generateYNode(const OrderedSegment* s);
     static DAGNode* generateLeafNode(DrawableTrapezoid* t, bool& leafAlreadyPresent);
     // Creates a new generic node
     static DAGNode* newNode(nodeType type, info info);
 
-    nodeType getNodeType() const;
+    // GETTERS
+    // get the type stored in the node (point, segment or trapezoid)
+    const nodeType& getNodeType() const;
     bool isLeaf() const;
     bool isXNode() const;
     bool isYNode() const;
-    const cg3::Point2d* getPointStored();
+    const cg3::Point2d* getPointStored() const;
     const OrderedSegment* getOrientedSegmentStored() const;
     DrawableTrapezoid* getTrapezoidStored() const;
-    void convertToXNode(const cg3::Point2d* p);
-    void convertToYNode(const OrderedSegment* s);
-    void convertToLeafNode(DrawableTrapezoid* t);
+    // CONVERTERS
+    void convertToXNode(const cg3::Point2d* const p);
+    void convertToYNode(const OrderedSegment* const s);
+    void convertToLeafNode(DrawableTrapezoid* const t);
 
     //TODO    DAGNode* father; Maybe I don't need this
     DAGNode* lc;

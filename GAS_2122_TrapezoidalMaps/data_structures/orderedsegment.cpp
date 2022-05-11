@@ -1,10 +1,10 @@
 #include "orderedsegment.h"
 
-OrderedSegment::OrderedSegment(cg3::Segment2d unordered_s)  : cg3::Segment2d(unordered_s) {
+OrderedSegment::OrderedSegment(const cg3::Segment2d unordered_s)  : cg3::Segment2d(unordered_s) {
     orderSegment();
 }
 
-OrderedSegment::OrderedSegment(cg3::Point2d unordered_p1, cg3::Point2d unordered_p2) : cg3::Segment2d(unordered_p1, unordered_p2)  {
+OrderedSegment::OrderedSegment(const cg3::Point2d unordered_p1, const cg3::Point2d unordered_p2) : cg3::Segment2d(unordered_p1, unordered_p2)  {
     orderSegment();
 }
 

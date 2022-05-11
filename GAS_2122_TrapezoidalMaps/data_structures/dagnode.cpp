@@ -3,7 +3,6 @@
 
 // PRIVATE
 DAGNode* DAGNode::newNode(nodeType type, info info) {
-//    DAGNode* new_node = (DAGNode*)malloc(sizeof(DAGNode));
     DAGNode* new_node = new DAGNode;
     assert(new_node != nullptr);
 
@@ -48,7 +47,7 @@ DAGNode* DAGNode::generateLeafNode(DrawableTrapezoid* t,  bool& leafAlreadyPrese
     return DAGNode::newNode(trapezoid, info);
 }
 
-DAGNode::nodeType DAGNode::getNodeType() const {
+const DAGNode::nodeType& DAGNode::getNodeType() const {
     return this->type;
 }
 
@@ -62,7 +61,7 @@ bool DAGNode::isYNode() const {
     return getNodeType() == segment;
 }
 
-const cg3::Point2d* DAGNode::getPointStored() {
+const cg3::Point2d* DAGNode::getPointStored() const {
     if(!isXNode()) return nullptr;
     return this->value.p;
 }
@@ -77,16 +76,16 @@ DrawableTrapezoid* DAGNode::getTrapezoidStored() const {
     return this->value.t;
 }
 
-void DAGNode::convertToXNode(const cg3::Point2d* p) {
+void DAGNode::convertToXNode(const cg3::Point2d* const p) {
     this->type = point;
     this->value.p = p;
 
 }
-void DAGNode::convertToYNode(const OrderedSegment* s) {
+void DAGNode::convertToYNode(const OrderedSegment* const s) {
     this->type = segment;
     this->value.s = s;
 }
-void DAGNode::convertToLeafNode(DrawableTrapezoid* t) {
+void DAGNode::convertToLeafNode(DrawableTrapezoid* const t) {
     this->type = trapezoid;
     this->value.t = t;
 }

@@ -9,8 +9,8 @@
 class OrderedSegment : public cg3::Segment2d
 {
 public:
-    OrderedSegment(cg3::Segment2d unordered_s);
-    OrderedSegment(cg3::Point2d unordered_p1, cg3::Point2d unordered_p2);
+    OrderedSegment(const cg3::Segment2d unordered_s);
+    OrderedSegment(const cg3::Point2d unordered_p1, const cg3::Point2d unordered_p2);
 
     const cg3::Point2d& getLeftmost() const;
     const cg3::Point2d& getRightmost() const ;
