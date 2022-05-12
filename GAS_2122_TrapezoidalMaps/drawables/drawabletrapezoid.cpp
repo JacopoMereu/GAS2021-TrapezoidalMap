@@ -20,11 +20,6 @@ void DrawableTrapezoid::calculateGraphics() {
     setRandomColor();
 
     //  PRE-COMPUTING THE 4 VERTECES THAT MADE UP THE TRAPEZOID INSTEAD OF DOING AT EVERY DRAW CALL
-
-    /* Create two vertical line as height as the bounding box
-     * The first  has the x of the leftpoint
-     * The second //  //  x of the rightpoint
-    */
     setVerteces();
 }
 
@@ -73,6 +68,12 @@ void DrawableTrapezoid::setVerteces() {
     char code;
     const double thres = cg3::CG3_EPSILON;
 
+    /* Create two vertical line as height as the bounding box
+     * The first  has the x of the leftpoint of the trapezoid
+     * The second has the x of the rightpoint of the trapezoid
+     *
+     * When we don't know a vertex, we calculate the intersection point between a vertical line and a top/bottom segment
+    */
     cg3::Segment2d leftVerticalLine = cg3::Segment2d(
                 cg3::Point2d(getLeftp().x(), DrawableTrapezoid::getYMax()),
                 cg3::Point2d(getLeftp().x(), DrawableTrapezoid::getYMin())
@@ -82,15 +83,22 @@ void DrawableTrapezoid::setVerteces() {
                     cg3::Point2d(getRightp().x(), DrawableTrapezoid::getYMin())
                     );
 
+    // flag: is the left point on the top segment?
     bool leftpOnTop = getLeftp() == getTop().getLeftmost();
+    // flag: is the right point on the top segment?
     bool leftpOnBottom= getLeftp() == getBottom().getLeftmost();
+
+    /// LEFT VERTECES
+    /* DEGENERATIVE CASE */
     if(leftpOnBottom && leftpOnTop) {
         this->topLeftVertex = getLeftp();
         this->bottomLeftVertex = getLeftp();
     }
+    /* NORMAL CASE */
     else if(leftpOnBottom) {
         this->bottomLeftVertex = getLeftp();
         cg3::checkSegmentIntersection2(leftVerticalLine,  getTop(), code, thres, topLeftVertex);
+        assert(code == 'v' || code == '1'); // assert an intersection has been found
     }
     else if (leftpOnTop) {
         this->topLeftVertex = getLeftp();
@@ -103,13 +111,18 @@ void DrawableTrapezoid::setVerteces() {
         assert(code == 'v' || code == '1');
     }
 
-    //
+    /// RIGHT VERTECES
+    // flag: is the right point on the top segment?
     bool rightpOnTop = getRightp() == getTop().getRightmost();
+    // flag: is the right point on the bottom segment?
     bool rightpOnBottom= getRightp() == getBottom().getRightmost();
+
+    /* DEGENERATIVE CASE */
     if(rightpOnBottom && rightpOnTop) {
         this->bottomRightVertex = getRightp();
         this->topRightVertex = getRightp();
     }
+    /* NORMAL CASE */
     else if(rightpOnBottom) {
         this->bottomRightVertex = getRightp();
         cg3::checkSegmentIntersection2(rightVerticalLine,  getTop(), code, thres, topRightVertex);

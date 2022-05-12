@@ -17,6 +17,7 @@ const cg3::Point2d& OrderedSegment::getRightmost() const  {
 }
 
 void OrderedSegment::orderSegment() {
+    // if p1.x > p2.x => swap the points
     if(this->p1().x() > this->p2().x()) {
         cg3::Point2d tmp = this->p1();
         setP1(this->p2());

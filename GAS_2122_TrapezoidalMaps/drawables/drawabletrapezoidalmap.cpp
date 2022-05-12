@@ -1,45 +1,49 @@
 #include "drawabletrapezoidalmap.h"
 #include <cg3/viewer/opengl_objects/opengl_objects2.h>
 
-DrawableTrapezoidalMap::DrawableTrapezoidalMap()
-{
+DrawableTrapezoidalMap::DrawableTrapezoidalMap() {}
 
-}
-
-// Override DrawableObject
+/// Override DrawableObject
+// Draw the objects through opengl calls
 void DrawableTrapezoidalMap::draw() const
 {
+    // For each trapezoid in the map
     for(auto t : T) {
-        /* DRAW THE VERTICAL LINES*/
+        /* DRAW ITS VERTICAL LINES*/
         t->drawVerticalLines();
 
         /* DRAW THE POLYGON */
-        t->drawPolygon(); // IT MUST BE DONE AFTER THE VERTICAL LINES
+        t->drawPolygon(); // IT MUST BE DONE AFTER THE VERTICAL LINES, OTHERWISE THE LINES WON'T BE VISIBLE
     }
 }
 
+// See drawable_trapezoidalmap_dataset.cpp
 cg3::Point3d DrawableTrapezoidalMap::sceneCenter() const
 {
     const cg3::BoundingBox2& boundingBox = this->getBoundingBox();
     return cg3::Point3d(boundingBox.center().x(), boundingBox.center().y(), 0);
 }
 
+// See drawable_trapezoidalmap_dataset.cpp
 double DrawableTrapezoidalMap::sceneRadius() const
 {
     const cg3::BoundingBox2& boundingBox = this->getBoundingBox();
     return boundingBox.diag();
 }
 
-// trapezoidalmap
+/// Override TrapezoidalMap
 void DrawableTrapezoidalMap::initialize(const cg3::BoundingBox2 &B) {
+    // set the minimum y-coordinate and the maximum y-coordinate of the boundarybox in the drawable trapezoid class
     auto yMin = B.min().y();
     auto yMax = B.max().y();
     DrawableTrapezoid::setYMax(yMax);
     DrawableTrapezoid::setYMin(yMin);
 
+    // parent call
     TrapezoidalMap::initialize(B);
 }
-// Others
+
+/// Others
 void DrawableTrapezoidalMap::highlightTrapezoid(DrawableTrapezoid *newLastTrapezoidHighlighted)
 {
     if(newLastTrapezoidHighlighted == nullptr) return;

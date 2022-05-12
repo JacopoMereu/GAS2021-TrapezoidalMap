@@ -10,22 +10,24 @@ class DrawableTrapezoidalMap : public TrapezoidalMap, public cg3::DrawableObject
 public:
     DrawableTrapezoidalMap();
 
-    // override of the virtual methods from DrawableObject
+    /// Override of the virtual methods from DrawableObject: see the documentation of drawable_object
+    // draw all the trapezoids contained in the trapezoidal map
     void draw() const;
     cg3::Point3d sceneCenter() const;
     double sceneRadius() const;
 
-    // Override trapezoidalmap
+    /// Override the virtual method from Trapezoidalmap
     void initialize(const cg3::BoundingBox2& B);
 
-    // other methods
+    /// other methods
+    // set the trapezoid given in input as "highlighted", only if it's not null
     void highlightTrapezoid(DrawableTrapezoid* newLastTrapezoidHighlighted);
+    // set the last trapezoid as "not highlighted"
     void resetLastTrapezoidHighlighted();
 
 private:
+    // the pointer to the last trapezoid highlighted
     DrawableTrapezoid* lastTrapezoidHighlighted = nullptr;
-
-//    Trapezoid *getLastTrapezoidHighlighted() const;
 };
 
 #endif // DRAWABLETRAPEZOIDALMAP_H

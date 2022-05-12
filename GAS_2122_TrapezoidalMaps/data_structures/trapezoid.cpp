@@ -6,54 +6,24 @@ Trapezoid::Trapezoid(const OrderedSegment& t, const OrderedSegment& b, const cg3
 
 }
 
-// setter/getter of top/bottom/left point/ right point
+//////////////////////// GETTER ////////////////////////
 const OrderedSegment &Trapezoid::getTop() const
 {
     return top;
-}
-void Trapezoid::setTop(const OrderedSegment &newTop)
-{
-    top = newTop;
 }
 const OrderedSegment &Trapezoid::getBottom() const
 {
     return bottom;
 }
-void Trapezoid::setBottom(const OrderedSegment &newBottom)
-{
-    bottom = newBottom;
-}
 const cg3::Point2d &Trapezoid::getLeftp() const
 {
     return leftp;
-}
-void Trapezoid::setLeftp(const cg3::Point2d &newLeftp)
-{
-    leftp = newLeftp;
 }
 const cg3::Point2d &Trapezoid::getRightp() const
 {
     return this->rightp;
 }
-void Trapezoid::setRightp(const cg3::Point2d &newRightp)
-{
-    this->rightp= newRightp;
-}
 
-
-// setter/getter of the trapezoidal neighbors
-void Trapezoid::setUpperLeftNeighbor(Trapezoid* const newNeighbor) {
-    neighbors[TOPLEFT] = newNeighbor;      
-}
-void Trapezoid::setUpperRightNeighbor(Trapezoid* const newNeighbor) {
-    neighbors[TOPRIGHT] = newNeighbor;
-}
-void Trapezoid::setLowerLeftNeighbor(Trapezoid* const newNeighbor) {
-    neighbors[BOTTOMLEFT] = newNeighbor;
-}
-void Trapezoid::setLowerRightNeighbor(Trapezoid* const newNeighbor) {
-    neighbors[BOTTOMRIGHT] = newNeighbor;
-}
 Trapezoid* Trapezoid::getUpperLeftNeighbor() const {
     return neighbors[TOPLEFT];
 }
@@ -66,18 +36,49 @@ Trapezoid* Trapezoid::getLowerLeftNeighbor() const {
 Trapezoid* Trapezoid::getLowerRightNeighbor() const {
     return neighbors[BOTTOMRIGHT];
 }
-// Replace neighbors
-void Trapezoid::replaceNeighborsFromTrapezoid(Trapezoid* const trapezoidToReplace, std::vector<neighborsCode> neighborsToReplace) {
-    for(auto code : neighborsToReplace) {
-        this->neighbors[code] = trapezoidToReplace->neighbors[code];
-        if(trapezoidToReplace->neighbors[code] != nullptr) {
-            trapezoidToReplace->neighbors[code]->replaceNeighbor(trapezoidToReplace, this);
-        }
-    }
+
+DAGNode* Trapezoid::getPointerToDAG() {
+    return nodeContainer;
 }
+
+bool Trapezoid::getIsBeingSplitted() const
+{
+    return isBeingSplitted;
+}
+
+////////////////////////////////////////////////////////
+
+
+
+//////////////////////// SETTER ////////////////////////
+void Trapezoid::setUpperLeftNeighbor(Trapezoid* const newNeighbor) {
+    neighbors[TOPLEFT] = newNeighbor;
+}
+void Trapezoid::setUpperRightNeighbor(Trapezoid* const newNeighbor) {
+    neighbors[TOPRIGHT] = newNeighbor;
+}
+void Trapezoid::setLowerLeftNeighbor(Trapezoid* const newNeighbor) {
+    neighbors[BOTTOMLEFT] = newNeighbor;
+}
+void Trapezoid::setLowerRightNeighbor(Trapezoid* const newNeighbor) {
+    neighbors[BOTTOMRIGHT] = newNeighbor;
+}
+
+void Trapezoid::setPointerToDAG(DAGNode* node) {
+    nodeContainer = node;
+}
+
+void Trapezoid::setIsBeingSplitted(const bool newIsBeingSplitted)
+{
+    isBeingSplitted = newIsBeingSplitted;
+}
+////////////////////////////////////////////////////////
+
+
+//////////////////////// SPECIAL METHODS TO REPLACE NEIGHBORS ////////////////////////////////////////////////////////////////////////
 bool Trapezoid::replaceNeighbor(Trapezoid* const oldNeighbor, Trapezoid* const newNeighbor) {
     bool hasReplaced = false;
-    //TODO da ottimizare il senso di ricerca
+    // source: https://riptutorial.com/cplusplus/example/13085/iteration-over-an-enum
     for (neighborsCode i = TOPLEFT; i <= BOTTOMRIGHT; i = neighborsCode(i + 1))
     {
         if(neighbors[i] == oldNeighbor) {
@@ -88,26 +89,23 @@ bool Trapezoid::replaceNeighbor(Trapezoid* const oldNeighbor, Trapezoid* const n
     }
     return hasReplaced;
 }
-// Setter/Getter pointer to the container node
-void Trapezoid::setPointerToDAG(DAGNode* node) {
-    nodeContainer = node;
+
+void Trapezoid::replaceNeighborsFromTrapezoid(Trapezoid* const trapezoidToReplace, std::vector<neighborsCode> neighborsToReplace) {
+    for(auto code : neighborsToReplace) {
+        this->neighbors[code] = trapezoidToReplace->neighbors[code];
+        if(trapezoidToReplace->neighbors[code] != nullptr) {
+            trapezoidToReplace->neighbors[code]->replaceNeighbor(trapezoidToReplace, this);
+        }
+    }
 }
-DAGNode* Trapezoid::getPointerToDAG() {
-    return nodeContainer;
-}
-// Merge Trapezoid
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 bool Trapezoid::canMerge(const Trapezoid& t1, const Trapezoid& t2) {
     return  t1.getTop() == t2.getTop()
             && t1.getBottom() == t2.getBottom();
 }
 
-bool Trapezoid::getIsBeingSplitted() const
-{
-    return isBeingSplitted;
-}
 
-void Trapezoid::setIsBeingSplitted(const bool newIsBeingSplitted)
-{
-    isBeingSplitted = newIsBeingSplitted;
-}
 
