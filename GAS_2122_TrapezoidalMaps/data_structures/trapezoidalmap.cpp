@@ -116,15 +116,16 @@ void TrapezoidalMap::followSegment(const OrderedSegment& s, std::vector<Drawable
             currentFace = (DrawableTrapezoid*)currentFace->getLowerRightNeighbor();
         }
         // else if rightp(dj) lies below the segment => go on the UpperRight neighbor
-        else if(cg3::isPointAtRight(s.getLeftmost(), s.getRightmost(), currentFace->getRightp())) {
+        /// else if(cg3::isPointAtRight(s.getLeftmost(), s.getRightmost(), currentFace->getRightp())) can be deleted safely
+        else  {
             currentFace = (DrawableTrapezoid*)currentFace->getUpperRightNeighbor();
         }
         /* else rightp(dj) is on the segment.
          * This can happen only if q.x = rightp.x, but this condition is impossible since we already checked that q.x > rightp.x,
          * so this case should be impossible */
-        else {
-            assert(false);
-        }
+//        else {
+//            assert(false);
+//        }
 
 
         if(currentFace != nullptr) {
