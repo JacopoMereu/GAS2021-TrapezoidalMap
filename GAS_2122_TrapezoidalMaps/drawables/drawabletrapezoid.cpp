@@ -52,16 +52,22 @@ void DrawableTrapezoid::drawVerticalLines() const {
 
 
 void DrawableTrapezoid::setRandomColor() {
+    assert(this->polygonColor!=nullptr);
+
+    /* COMMENT THE BELOW CODE AND USE THE OTHER FOR MORE PERFORMANCE */
     // source: https: https://en.cppreference.com/w/cpp/numeric/random/uniform_real_distribution
     std::random_device rd;  // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
     std::uniform_real_distribution<double> dis(min_random_value, max_random_value);
-
-    assert(this->polygonColor!=nullptr);
-
     this->polygonColor.setRedF(dis(gen));
     this->polygonColor.setBlueF(dis(gen));
     this->polygonColor.setGreenF(dis(gen));
+
+
+    /* QUICKER VERSION */
+//    this->polygonColor.setRed(0);
+//    this->polygonColor.setBlue(0);
+//    this->polygonColor.setGreen(0);
 }
 
 void DrawableTrapezoid::setVerteces() {

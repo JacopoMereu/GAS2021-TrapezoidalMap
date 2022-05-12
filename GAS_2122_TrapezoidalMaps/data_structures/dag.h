@@ -13,7 +13,7 @@ public:
     // Destructor: it'll deallocate the nodes dynamically allocated
     ~DAG();
 
-    // initialize the DAG using a trapezoid rapresenting the bounding box
+    // initialize the DAG using a trapezoid representing the bounding box
     void initialize(DrawableTrapezoid* const B);
 
     /**

@@ -13,7 +13,7 @@ public:
     // A trapezoid is built using segments in general position, so it has at most 4 neighbors
     static const size_t N_NEIGHBORS = 4;
 
-    // The neighborsCode enum rapresents the 4 types of neighbors: topright, topleft, bottomleft, bottomright
+    // The neighborsCode enum represents the 4 types of neighbors: topright, topleft, bottomleft, bottomright
     enum neighborsCode {TOPLEFT, TOPRIGHT, BOTTOMLEFT, BOTTOMRIGHT};
 
     /**
@@ -99,7 +99,7 @@ protected:
     std::array<Trapezoid*, N_NEIGHBORS> neighbors = {nullptr, nullptr, nullptr, nullptr};
 
 private:
-    // Objects rapresenting a trapezoid: top segment, bottom segment, left point, right point.
+    // Objects representing a trapezoid: top segment, bottom segment, left point, right point.
     OrderedSegment top;
     OrderedSegment bottom;
     cg3::Point2d leftp;

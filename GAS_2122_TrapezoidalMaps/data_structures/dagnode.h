@@ -10,7 +10,7 @@ class DAGNode
 {
 public:
     /**
-     * @brief The nodeType enum rapresents the type of the node, i.e. if it's a
+     * @brief The nodeType enum represents the type of the node, i.e. if it's a
      *      x-node
      *      y-node,
      *      or leaf node.
@@ -19,7 +19,7 @@ public:
 
 
     /**
-     * @brief The info union rapresents the type of information pointed by a node. A node can point to a:
+     * @brief The info union represents the type of information pointed by a node. A node can point to a:
      *      point,
      *      segment,
      *      or a trapezoid.

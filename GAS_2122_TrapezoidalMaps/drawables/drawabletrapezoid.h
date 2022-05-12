@@ -46,7 +46,7 @@ public:
     void setIsHighlighted(bool newIsHighlighted);
     //////////////////////////////////////////////
 
-    // static variables that rapresent the minimum y-coordinate of the boundary and the maximum y-coordinate of the boundary.
+    // static variables that represent the minimum y-coordinate of the boundary and the maximum y-coordinate of the boundary.
     // These two are essential for calculating the 4 verteces of the trapezoid.
     static double yMin, yMax;
 

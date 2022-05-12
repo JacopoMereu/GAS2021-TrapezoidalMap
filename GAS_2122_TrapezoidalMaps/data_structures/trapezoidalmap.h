@@ -15,7 +15,7 @@ public:
 
     /**
      * @brief initialize    initializes the trapezoidal map (and the DAG inside it) creating the first trapezoid.
-     *                      This last rapresent the BoundingBox that contains both the trapezoidal map and the DAG.
+     *                      This last represents the BoundingBox that contains both the trapezoidal map and the DAG.
      * @param B             The bounding box that encloses the trapezoidal mal (and the DAG).
      */
     virtual void initialize(const cg3::BoundingBox2& B);

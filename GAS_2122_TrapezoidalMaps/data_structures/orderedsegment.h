@@ -8,7 +8,7 @@
 // Class created because we need to know the leftmost/rightmost verteces of a segment but I don't want to check it every time a runtime...
 /**
  * @extends cg3::Segment2d
- * @brief The OrderedSegment class rapresents a segment sorted by the x-value (from the endpoint with smallest x to the endpoint with highest x).
+ * @brief The OrderedSegment class represents a segment sorted by the x-value (from the endpoint with smallest x to the endpoint with highest x).
  * I recall segments are in general position, ergo the two endpoints of the segment cannot have the same x-value.
  */
 class OrderedSegment : public cg3::Segment2d
