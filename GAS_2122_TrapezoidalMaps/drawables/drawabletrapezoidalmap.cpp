@@ -9,6 +9,9 @@ void DrawableTrapezoidalMap::draw() const
 {
     // For each trapezoid in the map
     for(auto t : T) {
+        // If the trapezoid has been split, skip it
+        if(t->getIsBeingSplitted()) continue;
+
         /* DRAW ITS VERTICAL LINES*/
         t->drawVerticalLines();
 

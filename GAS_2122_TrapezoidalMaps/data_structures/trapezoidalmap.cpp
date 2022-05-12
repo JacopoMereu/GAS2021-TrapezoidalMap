@@ -144,9 +144,11 @@ void TrapezoidalMap::split(const OrderedSegment& s, std::vector<DrawableTrapezoi
     }
 
 
-    /* At the end of the splitting, delete the old faces from the trapezoidal map.*/
-    for(auto f : intersectingFaces)
-        deleteTrapezoidFromMap(f);
+    /// UPDATE: For improving the time performance I don't delete these faces now, simply I won't draw them. In any case they will be deleted before the end of the application (so no memory leaks).
+//    At the end of the splitting, delete the old faces from the trapezoidal map.
+//    for(auto f : intersectingFaces)
+//        deleteTrapezoidFromMap(f);
+
     intersectingFaces.clear();
 }
 
@@ -489,6 +491,7 @@ void TrapezoidalMap::deleteTrapezoidFromMap(DrawableTrapezoid* trapezoidToDelete
     assert(trapezoidToDelete != nullptr);
 
     assert(trapezoidToDelete->getPointerToDAG()!=nullptr);
+
     T.erase(std::remove(T.begin(), T.end(), trapezoidToDelete), T.end());
     if(trapezoidToDelete)
         delete trapezoidToDelete;
